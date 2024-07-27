@@ -6,8 +6,10 @@ import Footer from './Footer';
 import Preview from './Preview';
 import { THEME } from './constants';
 
+const DEFAULT_THEME = THEME.LIGHT;
+
 function App() {
-  const [theme, setTheme] = useState(THEME.LIGHT);
+  const [theme, setTheme] = useState(DEFAULT_THEME);
 
   return (
     <>

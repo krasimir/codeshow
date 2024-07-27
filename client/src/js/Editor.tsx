@@ -3,13 +3,15 @@ import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, basicSetup } from 'codemirror';
 import { keymap } from '@codemirror/view';
 import { javascript } from '@codemirror/lang-javascript';
-import { cobalt as darkTheme, clouds as lightTheme } from 'thememirror'; // https://www.npmjs.com/package/thememirror
-import { THEME } from './constants';
+import { dracula as darkTheme } from 'thememirror'; // https://www.npmjs.com/package/thememirror
 
+import { THEME } from './constants';
 
 const code = `function Test() {
   return <Hello />
 }`;
+
+const lightTheme = EditorView.baseTheme({});
 
 export default function Editor({ theme }) {
   const editor = useRef(null);

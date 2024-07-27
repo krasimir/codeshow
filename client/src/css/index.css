@@ -20,7 +20,8 @@ body.dark {
   background: #000;
   color: #FFF;
 }
-body.dark #preview {
+body.dark #preview,
+body.dark #footer {
   filter: invert(1) sepia(1) saturate(5) hue-rotate(180deg);
 }
 
