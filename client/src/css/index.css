@@ -12,3 +12,30 @@ body, html {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 18px;
 }
+
+.p1 { padding: 1em; }
+.grid { display: grid; }
+.grid2 { grid-template-columns: 1fr 1fr; }
+.gap0 { gap: 0; }
+
+/* CodeMirror */
+.cm-editor.cm-focused {
+  outline: none;
+}
+.cm-editor .cm-lineNumbers {
+  display: none !important;
+}
+.cm-editor .cm-gutters {
+  background: none !important;
+  border-right: none;
+}
+.cm-editor .cm-activeLineGutter {
+  background: none !important;
+  margin-top: 0 !important;
+}
+.cm-editor .cm-activeLine {
+  background: none !important;
+}
+.cm-editor .cm-gutterElement {
+  margin-top: 0 !important;
+}
