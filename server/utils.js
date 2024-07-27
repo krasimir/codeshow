@@ -15,7 +15,7 @@ function ui() {
           <link href="/styles_${version}.css" rel="stylesheet">
         </head>
         <body>
-          <div id="root"></div>
+          <div id="root" class="h100 flex flex-column"></div>
           <script src="/app_${version}.js"></script>
         </body>
       </html>
