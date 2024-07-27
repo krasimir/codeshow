@@ -13,42 +13,76 @@ const code = `function Test() {
 
 const lightTheme = EditorView.baseTheme({});
 
-export default function Editor({ theme }) {
-  const editor = useRef(null);
-  const themeCompartment = useRef(new Compartment);
-  const extensions = [
-    createKeyMapping('Mod-s', () => console.log('save')),
-    basicSetup,
-    javascript(),
-    themeCompartment.current.of(theme === THEME.LIGHT ? lightTheme : darkTheme)
-  ];
+type EditorProps = {
+  theme: THEME;
+  onSave: (code: string) => void;
+}
 
-  useEffect(() => {
-    let startState = EditorState.create({ doc: code, extensions });
-    let e = new EditorView({
-      state: startState,
-      parent: document.querySelector('#editor'),
+const CodeMirrorEditor = {
+  state: null,
+  editor: null,
+  themeComp: new Compartment,
+  onSave: () => {},
+  theme: null,
+  init(domElement: any, theme:string, onSave: Function) {
+    this.onSave = onSave;
+    this.theme = theme;
+    this.state = EditorState.create({ doc: code, extensions: this._extensions() });
+    this.editor = new EditorView({
+      state: this.state,
+      parent: domElement,
     });
+  },
+  changeContent(newCode: string) {
+    this.editor.current.setState(
+      EditorState.create({ doc: newCode, extensions: this._extensions() })
+    );
+  },
+  focus() {
+    if (this.editor === null) return;
+    this.editor.focus();
+  },
+  changeTheme(theme) {
+    if (this.editor === null) return;
+    this.theme = theme;
+    this.editor.dispatch({
+      effects: this.themeComp.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
+    });
+  },
+  _extensions() {
+    return [
+      createKeyMapping('Mod-s', () => {
+        this.onSave(this.editor.state.doc.toString());
+      }),
+      basicSetup,
+      javascript(),
+      this.themeComp.of(this.theme === THEME.LIGHT ? lightTheme : darkTheme)
+    ]
+  }
+}
+
+export default function Editor({ theme, onSave }: EditorProps) {
+  useEffect(() => {
+    CodeMirrorEditor.init(
+      document.querySelector('#editor'),
+      theme,
+      onSave
+    );
     setTimeout(() => {
-      editor.current = e;
-      editor.current.focus();
+      CodeMirrorEditor.focus();
     }, 0);
   }, []);
 
   useEffect(() => {
-    if (editor.current) {
-      editor.current.dispatch({
-        effects: themeCompartment.current.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
-      })
-    }
+    CodeMirrorEditor.changeTheme(theme);
   }, [ theme ]);
 
   return (
-    <div id='editor' className='p1'>
-
-    </div>
+    <div id='editor' className='p1'></div>
   )
 }
+
+Editor.instance = CodeMirrorEditor;
 
 function createKeyMapping(key, callback) {
   return keymap.of([{

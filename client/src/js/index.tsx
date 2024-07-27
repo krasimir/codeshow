@@ -14,7 +14,7 @@ function App() {
   return (
     <>
       <div className="grid grid2 flex1">
-        <Editor theme={theme} />
+        <Editor theme={theme} onSave={code => console.log(code)}/>
         <Preview />
       </div>
       <Footer theme={theme} onThemeChange={theme => {
