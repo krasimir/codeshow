@@ -5,25 +5,18 @@ const spawn = require("child_process").spawn;
 const cssbun = require('cssbun')
 const chokidar = require("chokidar");
 
-const version = require(`${__dirname}/../../package.json`).version;
-
-const inputCSS = `${__dirname}/../../client/src/css/index.css`;
-const outputCSS = `${__dirname}/../../client/public/styles_${version}.css`;
-const inputJS = `${__dirname}/../../client/src/js/index.tsx`;
-const outputJS = `${__dirname}/../../client/public/app_${version}.js`;
-
 const exitCallbacks = [];
 const ROOT = process.cwd();
 let serverProcess;
 let restart = false;
 let processes = [];
 
-function compileCSS() {
+function compileCSS(inputCSS, outputCSS) {
   const minifiedCSS = new CleanCSS().minify(cssbun(inputCSS));
   fs.writeFileSync(outputCSS, minifiedCSS.styles);
   console.log(chalk.green('CSS saved'));
 }
-function compileJS(callback = () => {}) {
+function compileJS(inputJS, outputJS, callback = () => {}) {
   command(
     `./node_modules/.bin/esbuild ${inputJS} --bundle --minify --outfile=${outputJS} --sourcemap`,
     ROOT,
@@ -101,7 +94,6 @@ process.on("uncaughtException", exitHandler);
 
 module.exports = {
   runServer,
-  inputCSS,
   compileCSS,
   compileJS
 }
