@@ -16,6 +16,9 @@ const lightTheme = EditorView.baseTheme({});
 type EditorProps = {
   theme: THEME;
   onSave: (code: string) => void;
+  zoomLevel: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
 }
 
 const CodeMirrorEditor = {
@@ -23,9 +26,10 @@ const CodeMirrorEditor = {
   editor: null,
   themeComp: new Compartment,
   onSave: () => {},
+  onZoomIn: () => {},
+  onZoomOut: () => {},
   theme: null,
-  init(domElement: any, theme:string, onSave: Function) {
-    this.onSave = onSave;
+  init(domElement: any, theme:string) {
     this.theme = theme;
     this.state = EditorState.create({ doc: code, extensions: this._extensions() });
     this.editor = new EditorView({
@@ -54,6 +58,12 @@ const CodeMirrorEditor = {
       createKeyMapping('Mod-s', () => {
         this.onSave(this.editor.state.doc.toString());
       }),
+      createKeyMapping('Mod-=', () => {
+        this.onZoomIn();
+      }),
+      createKeyMapping('Mod--', () => {
+        this.onZoomOut();
+      }),
       basicSetup,
       javascript(),
       this.themeComp.of(this.theme === THEME.LIGHT ? lightTheme : darkTheme)
@@ -61,21 +71,29 @@ const CodeMirrorEditor = {
   }
 }
 
-export default function Editor({ theme, onSave }: EditorProps) {
+export default function Editor({ theme, onSave, zoomLevel, onZoomIn, onZoomOut }: EditorProps) {
   useEffect(() => {
     CodeMirrorEditor.init(
       document.querySelector('#editor'),
-      theme,
-      onSave
+      theme
     );
     setTimeout(() => {
       CodeMirrorEditor.focus();
+      setZoomLevel(zoomLevel);
     }, 0);
   }, []);
 
   useEffect(() => {
     CodeMirrorEditor.changeTheme(theme);
   }, [ theme ]);
+
+  useEffect(() => {
+    setZoomLevel(zoomLevel);
+  }, [ zoomLevel ]);
+
+  CodeMirrorEditor.onSave = onSave;
+  CodeMirrorEditor.onZoomIn = onZoomIn;
+  CodeMirrorEditor.onZoomOut = onZoomOut;
 
   return (
     <div id='editor' className='p1'></div>
@@ -89,4 +107,10 @@ function createKeyMapping(key, callback) {
     key,
     run() { callback(); return true }
   }])
+}
+function setZoomLevel(zoomLevel: number) {
+  const el = document.querySelector('.cm-editor');
+  if (el) {
+    document.querySelector('.cm-editor').style.fontSize = `${zoomLevel}em`;
+  }
 }
