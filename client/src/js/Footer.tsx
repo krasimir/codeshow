@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { THEME } from './constants';
 
-export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, toggleFileExporer }) {
+export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, toggleFileExporer, onPreviousSlide, onNextSlide, currentSlide, maxSlides, scriptName }) {
 
   function applyNewTheme(newTheme) {
     if (newTheme === THEME.DARK) {
@@ -19,7 +19,7 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, togg
 
   return (
     <div className='flex p1 bl bb br bt' id='footer'>
-      <div>
+      <div className="flex">
         <button className="icon" onClick={() => {
             applyNewTheme(theme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT);
         }}>
@@ -34,6 +34,20 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, togg
         <button className="icon" onClick={() => toggleFileExporer()}>
           <img src='./imgs/file-text.svg' alt='toggle file explorer' />
         </button>
+        {maxSlides !== 0 && (
+          <>
+            <div className='separatlor mx05'></div>
+            <button className="icon" onClick={() => onPreviousSlide()} disabled={currentSlide === 0}>
+              <img src='./imgs/arrow-left-circle.svg' alt='previous slide' />
+            </button>
+            <div className='current-slide mx05'>
+              {currentSlide+1}/{maxSlides} of <small>"{scriptName}"</small>
+            </div>
+            <button className="icon" onClick={() => onNextSlide()} disabled={currentSlide === maxSlides-1}>
+              <img src='./imgs/arrow-right-circle.svg' alt='previous slide' />
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

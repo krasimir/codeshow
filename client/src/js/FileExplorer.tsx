@@ -1,37 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import Editor from './Editor';
-
-export type Item = {
-  path: string,
-  name: string,
-  type: 'folder' | 'file',
-  children: Item[]
-}
+import React from 'react';
+import { Item } from './types';
 
 type FileExplorerProps = {
   onOpenFile: (item: Item) => void,
-  onClose: () => void
+  onClose: () => void,
+  files: Item[]
 }
 
-export default function FileExplorer({ onOpenFile, onClose }: FileExplorerProps) {
-  const [ error, setError ] = useState(null);
-  const [ files, setFiles ] = useState([]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/files');
-        if (!res.ok) {
-          throw new Error('Failed to fetch files');
-        }
-        const files = await res.json();
-        setFiles(files);
-      } catch(err) {
-        setError(err)
-      }
-    })();    
-  }, []);
-
+export default function FileExplorer({ onOpenFile, onClose, files }: FileExplorerProps) {
   function renderDir(item: Item, level = 0) {
     return (
       <div key={item.path}>
@@ -62,7 +38,6 @@ export default function FileExplorer({ onOpenFile, onClose }: FileExplorerProps)
       <button className="icon abs" style={{ top: '1em', right: '1em' }} onClick={onClose}>
         <img src='./imgs/x-circle.svg' alt='close'/>
       </button>
-      {error && <div className='p1'>{error.toString()}</div>}
       <div className='p1'>
         {files.map(dir => renderDir(dir))}
       </div>

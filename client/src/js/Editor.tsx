@@ -7,21 +7,10 @@ import { indentWithTab } from '@codemirror/commands'
 import { dracula as darkTheme } from 'thememirror'; // https://www.npmjs.com/package/thememirror
 
 import { THEME } from './constants';
-import FileExplorer, { Item } from './FileExplorer';
-
-export enum EDITOR_MODE {
-  EDITOR,
-  FILE_EXPLORER
-}
+import { Item } from './types';
 
 const lightTheme = EditorView.baseTheme({});
 const DEFAULT_IFRAME_REFRASH_TIME = 1000;
-
-type EditorProps = {
-  theme: THEME;
-  zoomLevel: number;
-  mode: EDITOR_MODE;
-}
 
 const CodeMirrorEditor = {
   // private
@@ -131,22 +120,16 @@ const CodeMirrorEditor = {
   }
 }
 
-function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
-  switch (action.type) {
-    case 'open':
-      if (files.find(file => file.name === action.file.name)) {
-        return [...files];
-      }
-      return files.concat(action.file);
-    case 'close':
-      return files.filter(file => file.name !== action.file.name);
-    default:
-      return files;
-  }
+type EditorProps = {
+  theme: THEME;
+  zoomLevel: number;
+  children: any;
+  openedFiles: Item[];
+  openFile: (file: Item) => void;
+  closeFile: (file: Item) => void;
 }
 
-export default function Editor({ theme, zoomLevel, mode }: EditorProps) {
-  const [ openedFiles, setOpenedFiles ] = useReducer(openedFilesReducer, []);
+export default function Editor({ theme, zoomLevel, children, openedFiles, openFile, closeFile }: EditorProps) {
 
   useEffect(() => {
     CodeMirrorEditor.init(
@@ -180,24 +163,17 @@ export default function Editor({ theme, zoomLevel, mode }: EditorProps) {
             active={file.path === CodeMirrorEditor.getCurrentFile()?.path}
             onClick={() => {
               CodeMirrorEditor.openFile(file);
-              setOpenedFiles({ type: 'open', file });
+              openFile(file);
             }}
             onClose={() => {
               CodeMirrorEditor.fileClosed();
-              setOpenedFiles({ type: 'close', file });
+              closeFile(file);
             }}
             />
         ))}
       </div>
       <div className='p1 flex1 h100' id='editor'></div>
-      {mode === EDITOR_MODE.FILE_EXPLORER && <FileExplorer
-        onOpenFile={(item: Item) => {
-          setOpenedFiles({ type: 'open', file: item });
-          CodeMirrorEditor.openFile(item);
-        }}
-        onClose={() => {
-          CodeMirrorEditor.toggleFileExporer();
-        }}/>}
+      {children}
     </div>
   )
 }
