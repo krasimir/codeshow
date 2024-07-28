@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, basicSetup } from 'codemirror';
 import { keymap } from '@codemirror/view';
@@ -7,16 +7,12 @@ import { indentWithTab } from '@codemirror/commands'
 import { dracula as darkTheme } from 'thememirror'; // https://www.npmjs.com/package/thememirror
 
 import { THEME } from './constants';
-import FileExplorer from './FileExplorer';
+import FileExplorer, { Item } from './FileExplorer';
 
 export enum EDITOR_MODE {
   EDITOR,
   FILE_EXPLORER
 }
-
-const code = `function Test() {
-  return <Hello />
-}`;
 
 const lightTheme = EditorView.baseTheme({});
 
@@ -30,21 +26,38 @@ const CodeMirrorEditor = {
   state: null,
   editor: null,
   themeComp: new Compartment,
-  onSave: (code: string) => {},
   onZoomIn: () => {},
   onZoomOut: () => {},
   toggleFileExporer: () => {},
   theme: null,
+  currentFile: null as Item | null,
   init(domElement: any, theme:string) {
     this.theme = theme;
-    this.state = EditorState.create({ doc: code, extensions: this._extensions() });
+    this.state = EditorState.create({ doc: '', extensions: this._extensions() });
     this.editor = new EditorView({
       state: this.state,
       parent: domElement,
     });
   },
+  onSave(code: string) {
+    if (this.currentFile === null) return;
+    try {
+      fetch('/api/file', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          path: this.currentFile.path,
+          content: code
+        })
+      });
+    } catch(err) {
+      console.log(err);
+    }
+  },
   changeContent(newCode: string) {
-    this.editor.current.setState(
+    this.editor.setState(
       EditorState.create({ doc: newCode, extensions: this._extensions() })
     );
   },
@@ -58,6 +71,21 @@ const CodeMirrorEditor = {
     this.editor.dispatch({
       effects: this.themeComp.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
     });
+  },
+  async openFile(file: Item) {
+    try {
+      this.currentFile = file;
+      this.changeContent(`Loading ${file.name} ...`);
+      const res = await fetch(`/api/file?path=${file.path}`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch file ${file.name}`);
+      }
+      const code = await res.json();
+      this.changeContent(code.content);
+    } catch(err) {
+      console.log(err);
+      this.changeContent(err.message);
+    }
   },
   _extensions() {
     return [
@@ -76,12 +104,29 @@ const CodeMirrorEditor = {
       keymap.of([indentWithTab]),
       basicSetup,
       javascript(),
-      this.themeComp.of(this.theme === THEME.LIGHT ? lightTheme : darkTheme)
+      this.themeComp.of(this.theme === THEME.LIGHT ? lightTheme : darkTheme),
+      EditorView.lineWrapping
     ]
   }
 }
 
-export default function Editor({ theme, zoomLevel, mode }: EditorProps) {  
+function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
+  switch (action.type) {
+    case 'open':
+      if (files.find(file => file.name === action.file.name)) {
+        return [...files];
+      }
+      return files.concat(action.file);
+    case 'close':
+      return files.filter(file => file.name !== action.file.name);
+    default:
+      return files;
+  }
+}
+
+export default function Editor({ theme, zoomLevel, mode }: EditorProps) {
+  const [ openedFiles, setOpenedFiles ] = useReducer(openedFilesReducer, []);
+
   useEffect(() => {
     CodeMirrorEditor.init(
       document.querySelector('#editor'),
@@ -105,12 +150,29 @@ export default function Editor({ theme, zoomLevel, mode }: EditorProps) {
     <div onClick={e => {
       e.stopPropagation();
       CodeMirrorEditor.focus();
-    }} className='br bl rel'>
+    }} className='br bl rel ohidden flex flex-column'>
       <div className='bb flex pt02 px02'>
-        {/* tabs */}
+        {openedFiles.map((file, i) => (
+          <Tab
+            key={file.name}
+            file={file.name}
+            active={file.path === CodeMirrorEditor.currentFile?.path}
+            onClick={() => {
+              CodeMirrorEditor.openFile(file);
+              setOpenedFiles({ type: 'open', file });
+            }}
+            />
+        ))}
       </div>
-      <div className='p1' id='editor'></div>
-      {mode === EDITOR_MODE.FILE_EXPLORER && <FileExplorer />}
+      <div className='p1 flex1 h100' id='editor'></div>
+      {mode === EDITOR_MODE.FILE_EXPLORER && <FileExplorer
+        onOpenFile={(item: Item) => {
+          setOpenedFiles({ type: 'open', file: item });
+          CodeMirrorEditor.openFile(item);
+        }}
+        onClose={() => {
+          CodeMirrorEditor.toggleFileExporer();
+        }}/>}
     </div>
   )
 }
@@ -130,7 +192,7 @@ function setZoomLevel(zoomLevel: number) {
   }
 }
 
-function Tab({ file, active, onClick }: { file: string, active?: boolean, onClick: () => void }) {
+function Tab({ file, active, onClick, key }: { file: string, active?: boolean, onClick: () => void, key: string }) {
   return (
     <button className={`tab ${active ? 'active' : ''}`} onClick={onClick}>
       {file}

@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Editor from './Editor';
 
-type Item = {
+export type Item = {
   path: string,
   name: string,
   type: 'folder' | 'file',
   children: Item[]
 }
 
-export default function FileExplorer() {
+type FileExplorerProps = {
+  onOpenFile: (item: Item) => void,
+  onClose: () => void
+}
+
+export default function FileExplorer({ onOpenFile, onClose }: FileExplorerProps) {
   const [ error, setError ] = useState(null);
   const [ files, setFiles ] = useState([]);
 
@@ -42,7 +47,10 @@ export default function FileExplorer() {
   }
   function renderFile(item: Item, level = 0) {
     return (
-      <button key={item.path} className='flex as-link' style={calculateIndent(level)}>
+      <button key={item.path} className='flex as-link' style={calculateIndent(level)} onClick={() => {
+        onOpenFile(item);
+        onClose();
+      }}>
         <img src='./imgs/file-text.svg' width={22} className='mr02' />
         <span>{item.name}</span>
       </button>
@@ -51,9 +59,7 @@ export default function FileExplorer() {
 
   return (
     <div className="abs curtain fill fz12" style={{ top: 0, left: 0 }} id="file-explorer">
-      <button className="icon abs" style={{ top: '1em', right: '1em' }} onClick={() => {
-        Editor.instance.toggleFileExporer();
-      }}>
+      <button className="icon abs" style={{ top: '1em', right: '1em' }} onClick={onClose}>
         <img src='./imgs/x-circle.svg' alt='close'/>
       </button>
       {error && <div className='p1'>{error.toString()}</div>}

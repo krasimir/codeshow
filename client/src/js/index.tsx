@@ -25,9 +25,6 @@ function App() {
 
   Editor.instance.onZoomIn = onZoomIn;
   Editor.instance.onZoomOut = onZoomOut;
-  Editor.instance.onSave = code => {
-    console.log(code);
-  }
   Editor.instance.toggleFileExporer = () => {
     setFileExplorerVisible(!fileExplorerVisible);
   }

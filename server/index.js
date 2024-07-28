@@ -6,6 +6,8 @@ const port = 8080;
 
 app.use(express.static(__dirname + '/../client/public'));
 app.get('/api/files', FileExplorer.getFiles);
+app.get('/api/file', FileExplorer.getFileContent);
+app.post('/api/file', express.json(), FileExplorer.saveFileContent);
 app.get('/app', appUI());
 app.get('/', codeshow());
 

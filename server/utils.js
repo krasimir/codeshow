@@ -52,6 +52,26 @@ const FileExplorer = {
       item.name = dir.name;
       return item;
     }));
+  },
+  getFileContent(req, res) {
+    const { path } = req.query;
+    console.log(path);
+    try {
+      const content = fs.readFileSync(path, 'utf-8');
+      res.json({ content });
+    } catch(err) {
+      res.json({ error: err.message });
+    }
+  },
+  saveFileContent(req, res) {
+    const { path, content } = req.body;
+    console.log(path, content);
+    try {
+      fs.writeFileSync(path, content);
+      res.json({ success: true });
+    } catch(err) {
+      res.json({ error: err.message });
+    }
   }
 }
 
