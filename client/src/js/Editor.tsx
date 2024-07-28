@@ -52,6 +52,11 @@ const CodeMirrorEditor = {
       EditorView.lineWrapping
     ]
   },
+  _changeContent(newCode: string) {
+    this._editor.setState(
+      EditorState.create({ doc: newCode, extensions: this._extensions() })
+    );
+  },
 
   // public
   onZoomIn: () => {},
@@ -67,11 +72,6 @@ const CodeMirrorEditor = {
       state: this._state,
       parent: domElement,
     });
-  },
-  changeContent(newCode: string) {
-    this._editor.setState(
-      EditorState.create({ doc: newCode, extensions: this._extensions() })
-    );
   },
   focus() {
     if (this._editor === null) return;
@@ -93,17 +93,21 @@ const CodeMirrorEditor = {
   async openFile(file: Item) {
     try {
       this._currentFile = file;
-      this.changeContent(`Loading ${file.name} ...`);
+      this._changeContent(`Loading ${file.name} ...`);
       const res = await fetch(`/api/file?path=${file.path}`);
       if (!res.ok) {
         throw new Error(`Failed to fetch file ${file.name}`);
       }
       const code = await res.json();
-      this.changeContent(code.content);
+      this._changeContent(code.content);
     } catch(err) {
       console.log(err);
-      this.changeContent(err.message);
+      this._changeContent(err.message);
     }
+  },
+  async fileClosed() {
+    this._currentFile = null;
+    this._changeContent('');
   },
   async onSave(code: string) {
     if (this._currentFile === null) return;
@@ -178,6 +182,10 @@ export default function Editor({ theme, zoomLevel, mode }: EditorProps) {
               CodeMirrorEditor.openFile(file);
               setOpenedFiles({ type: 'open', file });
             }}
+            onClose={() => {
+              CodeMirrorEditor.fileClosed();
+              setOpenedFiles({ type: 'close', file });
+            }}
             />
         ))}
       </div>
@@ -209,10 +217,24 @@ function setZoomLevel(zoomLevel: number) {
   }
 }
 
-function Tab({ file, active, onClick, key }: { file: string, active?: boolean, onClick: () => void, key: string }) {
+type TabProps = {
+  file: string;
+  active?: boolean;
+  onClick: () => void;
+  onClose: () => void;
+  key: string
+}
+
+function Tab({ file, active, onClick, onClose, key }: TabProps) {
   return (
-    <button className={`tab ${active ? 'active' : ''}`} onClick={onClick}>
+    <button className={`tab flex ${active ? 'active' : ''}`} onClick={onClick}>
       {file}
+      <span onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}>
+        <img src='./imgs/x-circle.svg' alt='close' width={18} />
+      </span>
     </button>
   )
 }

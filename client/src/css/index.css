@@ -1,6 +1,5 @@
 :root {
-  --grey: #404040;
-  --text-light: #f0f0f0;
+  
 }
 
 * {
@@ -13,6 +12,9 @@ body, html {
   padding: 0;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 18px;
+  --grey: #c2c2c2;
+  --grey-light: #d4d4d4;
+  --text-light: #f0f0f0;
 }
 #root {
   overflow: hidden;
@@ -21,6 +23,7 @@ body, html {
 body.dark {
   background: #000;
   color: #FFF;
+  --grey: #404040;
 }
 body.dark #preview,
 body.dark #footer > div,
@@ -79,18 +82,30 @@ button.as-link:hover span {
   font-size: 1em;
   padding: 0.5em 1em;
   opacity: 0.5;
-  background: var(--grey);
   border-top-right-radius: 6px;
   border-top-left-radius: 6px;
   border: none;
   color: inherit;
-  cursor: pointer
+  cursor: pointer;
+  background: var(--grey-light);
+}
+body.dark .tab {
+  background: var(--grey);
+}
+.tab span {
+  opacity: 0;
 }
 .tab.active {
   opacity: 1;
 }
-.tab:hover {
-  color: var(--text-light);
+.tab:hover span {
+  opacity: 1;
+}
+.tab span {
+  margin-left: 0.5em;
+}
+.tab span:hover {
+  transform: scale(1.2);
 }
 .tab + .tab {
   margin-left: 0.1em;
