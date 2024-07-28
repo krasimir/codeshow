@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import Editor from './Editor';
 
 type PreviewProps = {
   zoomLevel: number
@@ -27,7 +28,19 @@ export default function Preview({ zoomLevel }: PreviewProps) {
     return () => {
       clearTimeout(interval.current);
     }
-  }, [ zoomLevel ])
+  }, [ zoomLevel ]);
+
+  useEffect(() => {
+    const removeCallback = Editor.instance.addOnSaveCallback(() => {
+      const el = document.querySelector('#preview-iframe');
+      if (el) {
+        el.src = el.src + '';
+      }
+    });
+    return () => {
+      removeCallback();
+    }
+  }, []);
 
   return (
     <div id="preview">

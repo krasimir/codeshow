@@ -65,7 +65,6 @@ const FileExplorer = {
   },
   saveFileContent(req, res) {
     const { path, content } = req.body;
-    console.log(path, content);
     try {
       fs.writeFileSync(path, content);
       res.json({ success: true });

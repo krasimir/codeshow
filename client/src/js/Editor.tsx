@@ -15,6 +15,7 @@ export enum EDITOR_MODE {
 }
 
 const lightTheme = EditorView.baseTheme({});
+const DEFAULT_IFRAME_REFRASH_TIME = 1000;
 
 type EditorProps = {
   theme: THEME;
@@ -23,74 +24,17 @@ type EditorProps = {
 }
 
 const CodeMirrorEditor = {
-  state: null,
-  editor: null,
-  themeComp: new Compartment,
-  onZoomIn: () => {},
-  onZoomOut: () => {},
-  toggleFileExporer: () => {},
-  theme: null,
-  currentFile: null as Item | null,
-  init(domElement: any, theme:string) {
-    this.theme = theme;
-    this.state = EditorState.create({ doc: '', extensions: this._extensions() });
-    this.editor = new EditorView({
-      state: this.state,
-      parent: domElement,
-    });
-  },
-  onSave(code: string) {
-    if (this.currentFile === null) return;
-    try {
-      fetch('/api/file', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          path: this.currentFile.path,
-          content: code
-        })
-      });
-    } catch(err) {
-      console.log(err);
-    }
-  },
-  changeContent(newCode: string) {
-    this.editor.setState(
-      EditorState.create({ doc: newCode, extensions: this._extensions() })
-    );
-  },
-  focus() {
-    if (this.editor === null) return;
-    this.editor.focus();
-  },
-  changeTheme(theme) {
-    if (this.editor === null) return;
-    this.theme = theme;
-    this.editor.dispatch({
-      effects: this.themeComp.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
-    });
-  },
-  async openFile(file: Item) {
-    try {
-      this.currentFile = file;
-      this.changeContent(`Loading ${file.name} ...`);
-      const res = await fetch(`/api/file?path=${file.path}`);
-      if (!res.ok) {
-        throw new Error(`Failed to fetch file ${file.name}`);
-      }
-      const code = await res.json();
-      this.changeContent(code.content);
-    } catch(err) {
-      console.log(err);
-      this.changeContent(err.message);
-    }
-  },
+  // private
+  _state: null,
+  _themeComp: new Compartment,
+  _editor: null,
+  _theme: null,
+  _currentFile: null as Item | null,
+  _onSaveCallbacks: [],
   _extensions() {
     return [
       createKeyMapping('Mod-s', () => {
-        this.onSave(this.editor.state.doc.toString());
+        this.onSave(this._editor.state.doc.toString());
       }),
       createKeyMapping('Mod-=', () => {
         this.onZoomIn();
@@ -104,9 +48,82 @@ const CodeMirrorEditor = {
       keymap.of([indentWithTab]),
       basicSetup,
       javascript(),
-      this.themeComp.of(this.theme === THEME.LIGHT ? lightTheme : darkTheme),
+      this._themeComp.of(this._theme === THEME.LIGHT ? lightTheme : darkTheme),
       EditorView.lineWrapping
     ]
+  },
+
+  // public
+  onZoomIn: () => {},
+  onZoomOut: () => {},
+  toggleFileExporer: () => {},
+  getCurrentFile(): Item | null {
+    return this._currentFile;
+  },
+  init(domElement: any, theme:string) {
+    this._theme = theme;
+    this._state = EditorState.create({ doc: '', extensions: this._extensions() });
+    this._editor = new EditorView({
+      state: this._state,
+      parent: domElement,
+    });
+  },
+  changeContent(newCode: string) {
+    this._editor.setState(
+      EditorState.create({ doc: newCode, extensions: this._extensions() })
+    );
+  },
+  focus() {
+    if (this._editor === null) return;
+    this._editor.focus();
+  },
+  changeTheme(theme) {
+    if (this._editor === null) return;
+    this._theme = theme;
+    this._editor.dispatch({
+      effects: this._themeComp.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
+    });
+  },
+  addOnSaveCallback(callback) {
+    this._onSaveCallbacks.push(callback);
+    return () => {
+      this._onSaveCallbacks = this._onSaveCallbacks.filter(cb => cb !== callback);
+    }
+  },
+  async openFile(file: Item) {
+    try {
+      this._currentFile = file;
+      this.changeContent(`Loading ${file.name} ...`);
+      const res = await fetch(`/api/file?path=${file.path}`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch file ${file.name}`);
+      }
+      const code = await res.json();
+      this.changeContent(code.content);
+    } catch(err) {
+      console.log(err);
+      this.changeContent(err.message);
+    }
+  },
+  async onSave(code: string) {
+    if (this._currentFile === null) return;
+    try {
+      await fetch('/api/file', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          path: this._currentFile.path,
+          content: code
+        })
+      });
+      setTimeout(() => {
+        this._onSaveCallbacks.forEach(cb => cb());
+      }, DEFAULT_IFRAME_REFRASH_TIME);
+    } catch(err) {
+      console.log(err);
+    }
   }
 }
 
@@ -156,7 +173,7 @@ export default function Editor({ theme, zoomLevel, mode }: EditorProps) {
           <Tab
             key={file.name}
             file={file.name}
-            active={file.path === CodeMirrorEditor.currentFile?.path}
+            active={file.path === CodeMirrorEditor.getCurrentFile()?.path}
             onClick={() => {
               CodeMirrorEditor.openFile(file);
               setOpenedFiles({ type: 'open', file });

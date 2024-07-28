@@ -9,3 +9,8 @@ body, html {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 24px;
 }
+p {
+  font-size: 2em;
+  margin: 0;
+  padding: 1em;
+}

@@ -36,7 +36,7 @@ function App() {
           theme={theme}
           zoomLevel={zoomLevel}
           mode={fileExplorerVisible ? EDITOR_MODE.FILE_EXPLORER : EDITOR_MODE.EDITOR} />
-        <Preview zoomLevel={zoomLevel}/>
+        <Preview zoomLevel={zoomLevel} />
       </div>
       <Footer
         theme={theme}

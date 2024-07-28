@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-function App() {
-  return (
-    <p>Hello world</p>
-  )
-}
+import App from './App';
 
 window.addEventListener('load', () => {
   const root = createRoot(document.querySelector('#root'));
