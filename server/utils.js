@@ -1,6 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 
 const version = require('../package.json').version;
+const config = require('../config');
 
 function codeshow() {
   return (req, res) => {
@@ -43,7 +45,33 @@ function app() {
   }
 }
 
+const FileExplorer = {
+  getFiles(req, res) {
+    res.json(config.dirs.map(dir => {
+      const item = getDirectoryTree(dir.path);
+      item.name = dir.name;
+      return item;
+    }));
+  }
+}
+
 module.exports = {
   codeshow,
-  app
+  app,
+  FileExplorer
+}
+
+function getDirectoryTree(dirPath) {
+  const stats = fs.statSync(dirPath);
+  const info = {
+    path: dirPath,
+    name: path.basename(dirPath)
+  };
+  if (stats.isDirectory()) {
+    info.type = "folder";
+    info.children = fs.readdirSync(dirPath).map(child => getDirectoryTree(path.join(dirPath, child)));
+  } else {
+    info.type = "file";
+  }
+  return info;
 }

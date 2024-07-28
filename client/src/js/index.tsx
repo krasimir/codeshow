@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import Editor from './Editor';
+import Editor, {EDITOR_MODE} from './Editor';
 import Footer from './Footer';
 import Preview from './Preview';
 import { THEME } from './constants';
@@ -12,6 +12,7 @@ const DEFAULT_ZOOM_LEVEL = Number(localStorage.getItem('codeshow_zoom') || 1);
 function App() {
   const [ theme, setTheme ] = useState(DEFAULT_THEME);
   const [ zoomLevel, setZoomLevel ] = useState(DEFAULT_ZOOM_LEVEL);
+  const [ fileExplorerVisible, setFileExplorerVisible ] = useState(false);
 
   function onZoomIn() {
     setZoomLevel(zoomLevel + 0.1);
@@ -22,15 +23,22 @@ function App() {
     localStorage.setItem('codeshow_zoom', (zoomLevel - 0.1).toString());
   }
 
+  Editor.instance.onZoomIn = onZoomIn;
+  Editor.instance.onZoomOut = onZoomOut;
+  Editor.instance.onSave = code => {
+    console.log(code);
+  }
+  Editor.instance.toggleFileExporer = () => {
+    setFileExplorerVisible(!fileExplorerVisible);
+  }
+
   return (
     <>
       <div className="grid grid2 flex1">
         <Editor
           theme={theme}
-          onSave={code => console.log(code)}
-          onZoomIn={onZoomIn}
-          onZoomOut={onZoomOut}
-          zoomLevel={zoomLevel}/>
+          zoomLevel={zoomLevel}
+          mode={fileExplorerVisible ? EDITOR_MODE.FILE_EXPLORER : EDITOR_MODE.EDITOR} />
         <Preview zoomLevel={zoomLevel}/>
       </div>
       <Footer
@@ -41,6 +49,7 @@ function App() {
         }}
         onZoomIn={onZoomIn}
         onZoomOut={onZoomOut}
+        toggleFileExporer={Editor.instance.toggleFileExporer}
       />
     </>
   )

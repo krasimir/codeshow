@@ -3,9 +3,16 @@ import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, basicSetup } from 'codemirror';
 import { keymap } from '@codemirror/view';
 import { javascript } from '@codemirror/lang-javascript';
+import { indentWithTab } from '@codemirror/commands'
 import { dracula as darkTheme } from 'thememirror'; // https://www.npmjs.com/package/thememirror
 
 import { THEME } from './constants';
+import FileExplorer from './FileExplorer';
+
+export enum EDITOR_MODE {
+  EDITOR,
+  FILE_EXPLORER
+}
 
 const code = `function Test() {
   return <Hello />
@@ -15,19 +22,18 @@ const lightTheme = EditorView.baseTheme({});
 
 type EditorProps = {
   theme: THEME;
-  onSave: (code: string) => void;
   zoomLevel: number;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
+  mode: EDITOR_MODE;
 }
 
 const CodeMirrorEditor = {
   state: null,
   editor: null,
   themeComp: new Compartment,
-  onSave: () => {},
+  onSave: (code: string) => {},
   onZoomIn: () => {},
   onZoomOut: () => {},
+  toggleFileExporer: () => {},
   theme: null,
   init(domElement: any, theme:string) {
     this.theme = theme;
@@ -64,6 +70,10 @@ const CodeMirrorEditor = {
       createKeyMapping('Mod--', () => {
         this.onZoomOut();
       }),
+      createKeyMapping('Mod-Shift-e', () => {
+        this.toggleFileExporer();
+      }),
+      keymap.of([indentWithTab]),
       basicSetup,
       javascript(),
       this.themeComp.of(this.theme === THEME.LIGHT ? lightTheme : darkTheme)
@@ -71,7 +81,7 @@ const CodeMirrorEditor = {
   }
 }
 
-export default function Editor({ theme, onSave, zoomLevel, onZoomIn, onZoomOut }: EditorProps) {
+export default function Editor({ theme, zoomLevel, mode }: EditorProps) {  
   useEffect(() => {
     CodeMirrorEditor.init(
       document.querySelector('#editor'),
@@ -91,12 +101,17 @@ export default function Editor({ theme, onSave, zoomLevel, onZoomIn, onZoomOut }
     setZoomLevel(zoomLevel);
   }, [ zoomLevel ]);
 
-  CodeMirrorEditor.onSave = onSave;
-  CodeMirrorEditor.onZoomIn = onZoomIn;
-  CodeMirrorEditor.onZoomOut = onZoomOut;
-
   return (
-    <div id='editor' className='p1'></div>
+    <div onClick={e => {
+      e.stopPropagation();
+      CodeMirrorEditor.focus();
+    }} className='br bl rel'>
+      <div className='bb flex pt02 px02'>
+        {/* tabs */}
+      </div>
+      <div className='p1' id='editor'></div>
+      {mode === EDITOR_MODE.FILE_EXPLORER && <FileExplorer />}
+    </div>
   )
 }
 
@@ -113,4 +128,12 @@ function setZoomLevel(zoomLevel: number) {
   if (el) {
     document.querySelector('.cm-editor').style.fontSize = `${zoomLevel}em`;
   }
+}
+
+function Tab({ file, active, onClick }: { file: string, active?: boolean, onClick: () => void }) {
+  return (
+    <button className={`tab ${active ? 'active' : ''}`} onClick={onClick}>
+      {file}
+    </button>
+  )
 }
