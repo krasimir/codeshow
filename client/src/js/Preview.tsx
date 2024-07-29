@@ -12,24 +12,6 @@ export default function Preview({ zoomLevel }: PreviewProps) {
     border: 'none',
     overflow: 'hidden',
   }
-  const interval = useRef(null);
-
-  function passZoomLevelToIframe() {
-    const el = document.querySelector('#preview-iframe');
-    if (el && el.contentWindow && el.contentWindow.setZoomLevel) {
-      el.contentWindow.setZoomLevel(zoomLevel);
-      return;
-    }
-    interval.current = setTimeout(passZoomLevelToIframe, 100);
-  }
-
-  useEffect(() => {
-    passZoomLevelToIframe();
-    return () => {
-      clearTimeout(interval.current);
-    }
-  }, [ zoomLevel ]);
-
   useEffect(() => {
     const removeCallback = Editor.instance.addOnSaveCallback(() => {
       const el = document.querySelector('#preview-iframe');
@@ -44,7 +26,7 @@ export default function Preview({ zoomLevel }: PreviewProps) {
 
   return (
     <div id="preview">
-      <iframe src='/app' frameBorder="0" scrolling="no" style={style} id="preview-iframe"></iframe>
+      <iframe src='/app' frameBorder="0" scrolling="no" style={style} id="preview-iframe" data-zoom-level={zoomLevel} key={`iframe${zoomLevel}`}></iframe>
     </div>
   )
 }

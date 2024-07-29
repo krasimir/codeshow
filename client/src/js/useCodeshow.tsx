@@ -1,31 +1,22 @@
-import { useReducer, useState } from 'react';
+import { useReducer, useState, useEffect } from 'react';
 import { Item, Script, Slide } from './types';
 
-function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
-  switch (action.type) {
-    case 'open':
-      if (files.find(file => file.name === action.file.name)) {
-        return [...files];
-      }
-      return files.concat(action.file);
-    case 'close':
-      return files.filter(file => file.name !== action.file.name);
-    default:
-      return files;
-  }
-}
-
 export default function useCodeshow() {
-  const [ error, setError ] = useState(null);
   const [ files, setFiles ] = useState([]);
   const [ script, setScript ] = useState(null);
   const [ currentSlide, setCurrentSlide ] = useState(0);
   const [ openedFiles, setOpenedFiles ] = useReducer(openedFilesReducer, []);
 
-  async function executeSlide(slide: Slide) {
+  async function executeSlide() {
+    const slide:Slide = script.slides[currentSlide];
     for(const command of slide.commands) {
       if (command['openFile']) {
-        
+        const file = findFileItem(files, command['openFile']);
+        if (file) {
+          openFile(file);
+        } else {
+          console.error(`File not found: ${command['openFile']}`);
+        }
       }
     }
   }
@@ -34,6 +25,12 @@ export default function useCodeshow() {
   }
   function previousSlide() {
 
+  }
+  function openFile(file: Item) {
+    setOpenedFiles({ type: 'open', file });
+  }
+  function closeFile(file: Item) {
+    setOpenedFiles({ type: 'close', file });
   }
   async function loadResources() {
     // loading files
@@ -45,7 +42,7 @@ export default function useCodeshow() {
       const files = await res.json();
       setFiles(files);
     } catch(err) {
-      setError(err)
+      console.error(err);
     }
     // loading script
     const script = getParameterByName('script');
@@ -59,13 +56,18 @@ export default function useCodeshow() {
         } else {
           const script = window.CODESHOW_SCRIPT as Script;
           setScript(script);
-          executeSlide(script.slides[currentSlide]);
         }
       } catch(err) {
         console.error(err);
       }
     }
   }
+
+  useEffect(() => {
+    if (script) {
+      executeSlide();
+    }
+  }, [script, currentSlide ]);
 
   return {
     name: script ? script.name : '',
@@ -75,12 +77,8 @@ export default function useCodeshow() {
     previousSlide,
     files,
     loadResources,
-    openFile: (file: Item) => {
-      setOpenedFiles({ type: 'open', file });
-    },
-    closeFile: (file: Item) => {
-      setOpenedFiles({ type: 'close', file });
-    },
+    openFile,
+    closeFile,
     openedFiles
   }
 }
@@ -100,4 +98,31 @@ async function loadJavaScript(url) {
     script.onerror = reject;
     document.head.appendChild(script);
   });
+}
+function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
+  switch (action.type) {
+    case 'open':
+      if (files.find(file => file.name === action.file.name)) {
+        return [...files];
+      }
+      return files.concat(action.file);
+    case 'close':
+      return files.filter(file => file.name !== action.file.name);
+    default:
+      return files;
+  }
+}
+function findFileItem(files: Item[], path: string): Item | null {
+  for (const file of files) {
+    if (file.path.match(new RegExp(path))) {
+      return file;
+    }
+    if (file.children) {
+      const found = findFileItem(file.children, path);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return null;
 }
