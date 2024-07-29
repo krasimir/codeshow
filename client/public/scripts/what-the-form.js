@@ -3,7 +3,8 @@ window.CODESHOW_SCRIPT = {
   slides: [
     {
       commands: [
-        { openFile: 'js/App.tsx'}
+        { editFile: 'js/App.tsx'},
+        { openFile: 'css/index.css'}
       ]
     }
   ]

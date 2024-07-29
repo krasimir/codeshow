@@ -123,7 +123,7 @@ const CodeMirrorEditor = {
 type EditorProps = {
   theme: THEME;
   zoomLevel: number;
-  children: any;
+  children?: any;
   openedFiles: Item[];
   openFile: (file: Item) => void;
   closeFile: (file: Item) => void;

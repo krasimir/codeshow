@@ -7,7 +7,7 @@ import Preview from './Preview';
 import { THEME } from './constants';
 import useCodeshow from './useCodeshow';
 import FileExplorer from './FileExplorer';
-import {Item} from './types';
+import { Item } from './types';
 
 const DEFAULT_THEME = localStorage.getItem('codeshow_theme') || THEME.DARK;
 const DEFAULT_ZOOM_LEVEL = Number(localStorage.getItem('codeshow_zoom') || 1);

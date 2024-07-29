@@ -1,5 +1,6 @@
 import { useReducer, useState, useEffect } from 'react';
 import { Item, Script, Slide } from './types';
+import Editor from './Editor';
 
 export default function useCodeshow() {
   const [ files, setFiles ] = useState([]);
@@ -10,7 +11,15 @@ export default function useCodeshow() {
   async function executeSlide() {
     const slide:Slide = script.slides[currentSlide];
     for(const command of slide.commands) {
-      if (command['openFile']) {
+      if (command['editFile']) {
+        const file = findFileItem(files, command['editFile']);
+        if (file) {
+          openFile(file);
+          Editor.instance.openFile(file);
+        } else {
+          console.error(`File not found: ${command['openFile']}`);
+        }
+      } else if (command['openFile']) {
         const file = findFileItem(files, command['openFile']);
         if (file) {
           openFile(file);
