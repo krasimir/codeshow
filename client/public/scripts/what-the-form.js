@@ -1,10 +1,24 @@
 window.CODESHOW_SCRIPT = {
-  name: 'What the form ...',
   slides: [
     {
+      description: 'Initial',
       commands: [
         { editFile: 'js/App.tsx'},
         { openFile: 'css/index.css'}
+      ]
+    },
+    {
+      description: 'The form ...',
+      commands: [
+        { setContent: `import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      
+    </div>
+  )
+}`}
       ]
     }
   ]

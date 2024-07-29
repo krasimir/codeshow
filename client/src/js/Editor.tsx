@@ -98,6 +98,12 @@ const CodeMirrorEditor = {
     this._currentFile = null;
     this._changeContent('');
   },
+  setContent(code: string) {
+    this._changeContent(code);
+  },
+  save() {
+    this.onSave(this._editor.state.doc.toString());
+  },
   async onSave(code: string) {
     if (this._currentFile === null) return;
     try {

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { THEME } from './constants';
 
-export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, toggleFileExporer, onPreviousSlide, onNextSlide, currentSlide, maxSlides, scriptName }) {
+export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, toggleFileExporer, onPreviousSlide, onNextSlide, currentSlideIndex, maxSlides, currentSlide }) {
 
   function applyNewTheme(newTheme) {
     if (newTheme === THEME.DARK) {
@@ -37,13 +37,13 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, togg
         {maxSlides !== 0 && (
           <>
             <div className='separatlor mx05'></div>
-            <button className="icon" onClick={() => onPreviousSlide()} disabled={currentSlide === 0}>
+            <button className="icon" onClick={() => onPreviousSlide()} disabled={currentSlideIndex === 0}>
               <img src='./imgs/arrow-left-circle.svg' alt='previous slide' />
             </button>
             <div className='current-slide mx05'>
-              {currentSlide+1}/{maxSlides} of <small>"{scriptName}"</small>
+              {currentSlideIndex+1}/{maxSlides} of <small>"{currentSlide?.description}"</small>
             </div>
-            <button className="icon" onClick={() => onNextSlide()} disabled={currentSlide === maxSlides-1}>
+            <button className="icon" onClick={() => onNextSlide()} disabled={currentSlideIndex === maxSlides-1}>
               <img src='./imgs/arrow-right-circle.svg' alt='previous slide' />
             </button>
           </>

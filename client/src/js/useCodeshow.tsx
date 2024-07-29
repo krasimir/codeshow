@@ -5,11 +5,11 @@ import Editor from './Editor';
 export default function useCodeshow() {
   const [ files, setFiles ] = useState([]);
   const [ script, setScript ] = useState(null);
-  const [ currentSlide, setCurrentSlide ] = useState(0);
+  const [ currentSlideIndex, setCurrentSlideIndex ] = useState(0);
   const [ openedFiles, setOpenedFiles ] = useReducer(openedFilesReducer, []);
 
   async function executeSlide() {
-    const slide:Slide = script.slides[currentSlide];
+    const slide:Slide = script.slides[currentSlideIndex];
     for(const command of slide.commands) {
       if (command['editFile']) {
         const file = findFileItem(files, command['editFile']);
@@ -26,14 +26,17 @@ export default function useCodeshow() {
         } else {
           console.error(`File not found: ${command['openFile']}`);
         }
+      } else if (command['setContent']) {
+        Editor.instance.setContent(command['setContent']);
+        Editor.instance.save();
       }
     }
   }
   function nextSlide() {
-
+    setCurrentSlideIndex(currentSlideIndex + 1);
   }
   function previousSlide() {
-
+    setCurrentSlideIndex(currentSlideIndex - 1);
   }
   function openFile(file: Item) {
     setOpenedFiles({ type: 'open', file });
@@ -76,11 +79,11 @@ export default function useCodeshow() {
     if (script) {
       executeSlide();
     }
-  }, [script, currentSlide ]);
+  }, [script, currentSlideIndex ]);
 
   return {
     name: script ? script.name : '',
-    currentSlide,
+    currentSlideIndex,
     maxSlides: script ? script.slides.length : 0,
     nextSlide,
     previousSlide,
@@ -88,7 +91,8 @@ export default function useCodeshow() {
     loadResources,
     openFile,
     closeFile,
-    openedFiles
+    openedFiles,
+    getCurrentSlide: () => script ? script.slides[currentSlideIndex] : null
   }
 }
 

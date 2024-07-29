@@ -17,8 +17,8 @@ function App() {
   const [ zoomLevel, setZoomLevel ] = useState(DEFAULT_ZOOM_LEVEL);
   const [ fileExplorerVisible, setFileExplorerVisible ] = useState(false);
   const {
-    name: scriptName,
-    currentSlide,
+    getCurrentSlide,
+    currentSlideIndex,
     maxSlides,
     nextSlide,
     previousSlide,
@@ -72,7 +72,6 @@ function App() {
       </div>
       <Footer
         theme={theme}
-        scriptName={scriptName}
         onThemeChange={theme => {
           setTheme(theme);
           localStorage.setItem('codeshow_theme', theme);
@@ -80,10 +79,11 @@ function App() {
         onZoomIn={onZoomIn}
         onZoomOut={onZoomOut}
         toggleFileExporer={Editor.instance.toggleFileExporer}
-        currentSlide={currentSlide}
+        currentSlideIndex={currentSlideIndex}
         maxSlides={maxSlides}
         onNextSlide={nextSlide}
         onPreviousSlide={previousSlide}
+        currentSlide={getCurrentSlide()}
       />
     </>
   )
