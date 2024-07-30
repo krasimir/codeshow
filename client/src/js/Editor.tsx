@@ -11,6 +11,7 @@ import { Item } from './types';
 
 const lightTheme = EditorView.baseTheme({});
 const DEFAULT_IFRAME_REFRASH_TIME = 600;
+const TYPING_DELAY = 30;
 
 const CodeMirrorEditor = {
   // private
@@ -136,12 +137,12 @@ const CodeMirrorEditor = {
       changes: { from: this._editor.state.selection.main.head, insert: text }
     });
   },
-  simulateTyping(text: string, delay: number = 40) {
+  simulateTyping(text: string, delay: number = TYPING_DELAY) {
     return new Promise((resolve) => {
-    let i = 0;
-      const interval = setInterval(() => {
+      let i = 0;
+      this.typingInterval = setInterval(() => {
         if (i === text.length) {
-          clearInterval(interval);
+          clearInterval(this.typingInterval);
           resolve(true);
           return;
         }
@@ -155,6 +156,11 @@ const CodeMirrorEditor = {
         i++;
       }, delay);
     });
+  },
+  stopCurrentSlide() {
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+    }
   }
 }
 

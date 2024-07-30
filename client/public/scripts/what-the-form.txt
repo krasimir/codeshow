@@ -1,0 +1,80 @@
+--- loadFile
+js/App.tsx
+--- loadFile
+css/index.css
+--- setActiveFile
+js/App.tsx
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      Hello world
+    </div>
+  )
+}
+--- save
+=======================================================
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      
+    </div>
+  )
+}
+--- save
+--- setCursorAt
+6, 7
+--- type
+<div>
+        First name:
+        <input type="text" />        
+      </div>
+      <div>
+        Are you a web developer?
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div>Register</div>
+--- save
+=======================================================
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        First name:
+        <input type="text" />        
+      </div>
+      <div>
+        Are you a web developer?
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div>Register</div>
+    </div>
+  )
+}
+--- setCursorAt
+7, 20
+--- type
+<br />
+--- setCursorAt
+11, 33
+--- type
+<br />
+--- setCursorAt
+9, 13
+--- type
+<br />
+--- setCursorAt
+14, 13
+--- type
+<br /><br />
+--- save

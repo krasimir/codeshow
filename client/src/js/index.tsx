@@ -22,9 +22,8 @@ function App() {
     maxSlides,
     nextSlide,
     previousSlide,
-    loadResources,
     files,
-    openFile,
+    openFileInATab,
     closeFile,
     openedFiles
   } = useCodeshow();
@@ -44,24 +43,20 @@ function App() {
     setFileExplorerVisible(!fileExplorerVisible);
   }
 
-  useEffect(() => {
-    loadResources();
-  }, []);
-
   return (
     <>
       <div className="grid grid2 flex1">
         <Editor
           theme={theme}
           zoomLevel={zoomLevel}
-          openFile={openFile}
+          openFile={openFileInATab}
           closeFile={closeFile}
           openedFiles={openedFiles}
         >
           {fileExplorerVisible && <FileExplorer
               files={files}
               onOpenFile={(item: Item) => {
-                openFile(item);
+                openFileInATab(item);
                 Editor.instance.openFile(item);
               }}
               onClose={() => {

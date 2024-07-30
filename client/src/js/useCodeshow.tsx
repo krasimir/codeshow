@@ -1,5 +1,5 @@
 import { useReducer, useState, useEffect } from 'react';
-import { Item, Script, Slide } from './types';
+import { Command, Item } from './types';
 import Editor from './Editor';
 
 export default function useCodeshow() {
@@ -9,31 +9,38 @@ export default function useCodeshow() {
   const [ openedFiles, setOpenedFiles ] = useReducer(openedFilesReducer, []);
 
   async function executeSlide() {
-    const slide:Slide = script.slides[currentSlideIndex];
-    for(const command of slide.commands) {
-      if (command['setActiveFile']) { // -------------------------------------------------- setActiveFile
-        const file = findFileItem(files, command['setActiveFile']);
-        if (file) {
-          await Editor.instance.openFile(file);
-        } else {
-          console.error(`File not found: ${command['setActiveFile']}`);
-        }
-      } else if (command['loadFile']) { // -------------------------------------------------- loadFile
-        const file = findFileItem(files, command['loadFile']);
-        if (file) {
-          await openFile(file);
-        } else {
-          console.error(`File not found: ${command['loadFile']}`);
-        }
-      } else if (command['setContent']) { // -------------------------------------------------- setContent
-        Editor.instance.setContent(command['setContent']);
-      } else if (command['save']) { // -------------------------------------------------- setContent
-        await Editor.instance.save();
-      } else if (command['setCursorAt']) { // -------------------------------------------------- setCursorAt
-        Editor.instance.focus();
-        Editor.instance.setCursorAt(command['setCursorAt'][0], command['setCursorAt'][1]-1);
-      } else if (command['type']) { // -------------------------------------------------- setCursorAt
-        await Editor.instance.simulateTyping(command['type']);
+    const commands:Command[] = script.slides[currentSlideIndex];
+    Editor.instance.stopCurrentSlide();
+    for(const command of commands) {
+      let file;
+      switch(command.name) {
+        case 'loadFile':
+          if (file = findFileItem(files, command.args)) {
+            openFileInATab(file);
+          }
+          break;
+        case 'setActiveFile':
+          if (file = findFileItem(files, command.args)) {
+            await Editor.instance.openFile(file);
+          }
+          break;
+        case 'setContent':
+          Editor.instance.setContent(command.args);
+          break;
+        case 'save':
+          await Editor.instance.save();
+          break;
+        case 'setCursorAt':
+          const [ line, position ] = command.args.split(/, ?/).map(Number);
+          Editor.instance.focus();
+          Editor.instance.setCursorAt(line, position-1);
+          break;
+        case 'type':
+          await Editor.instance.simulateTyping(command.args);
+          break;
+        default: 
+          console.error(`Unknown command: ${command.name}`);
+          break;
       }
     }
   }
@@ -43,13 +50,13 @@ export default function useCodeshow() {
   function previousSlide() {
     setCurrentSlideIndex(currentSlideIndex - 1);
   }
-  function openFile(file: Item) {
+  function openFileInATab(file: Item) {
     setOpenedFiles({ type: 'open', file });
   }
   function closeFile(file: Item) {
     setOpenedFiles({ type: 'close', file });
   }
-  async function loadResources() {
+  async function _loadResources() {
     // loading files
     try {
       const res = await fetch('/api/files');
@@ -67,13 +74,21 @@ export default function useCodeshow() {
       console.error('No "script" GET param provided.');
     } else {
       try {
-        await loadJavaScript(script);
-        if (!window.CODESHOW_SCRIPT) {
-          console.error('No CODESHOW_SCRIPT global variable found in the loaded script.');
-        } else {
-          const script = window.CODESHOW_SCRIPT as Script;
-          setScript(script);
-        }
+        const res = await fetch(script);
+        const input = await res.text();
+        let rawSlides = input.split('=======================================================').map(slide => slide.trim());
+        const commandRegex = /--- (\w+)([\s\S]*?)(?=(--- \w+|$))/g;
+        const slides = rawSlides.map(slide => {
+          const commands: Command[] = [];
+          let match;
+          while ((match = commandRegex.exec(slide)) !== null) {
+            const commandName = match[1];
+            const commandArgs = match[2].trim();
+            commands.push({ name: commandName, args: commandArgs } as Command);
+          }
+          return commands;
+        });
+        setScript({ slides });
       } catch(err) {
         console.error(err);
       }
@@ -84,17 +99,19 @@ export default function useCodeshow() {
     if (script) {
       executeSlide();
     }
-  }, [script, currentSlideIndex ]);
+  }, [ script, currentSlideIndex ]);
+
+  useEffect(() => {
+    _loadResources();
+  }, []);
 
   return {
-    name: script ? script.name : '',
     currentSlideIndex,
     maxSlides: script ? script.slides.length : 0,
     nextSlide,
     previousSlide,
     files,
-    loadResources,
-    openFile,
+    openFileInATab,
     closeFile,
     openedFiles,
     getCurrentSlide: () => script ? script.slides[currentSlideIndex] : null
@@ -107,15 +124,6 @@ function getParameterByName(name, url = window.location.href) {
   if (!results) return null;
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
-async function loadJavaScript(url) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = url;
-    script.onload = resolve;
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
 }
 function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
   switch (action.type) {
@@ -131,16 +139,24 @@ function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', fil
   }
 }
 function findFileItem(files: Item[], path: string): Item | null {
-  for (const file of files) {
-    if (file.path.match(new RegExp(path))) {
-      return file;
-    }
-    if (file.children) {
-      const found = findFileItem(file.children, path);
-      if (found) {
-        return found;
+  function process(files: Item[], path: string): Item | null {
+    for (const file of files) {
+      if (file.path.match(new RegExp(path))) {
+        return file;
+      }
+      if (file.children) {
+        const found = process(file.children, path);
+        if (found) {
+          return found;
+        }
       }
     }
+    return null;
   }
+  const file = process(files, path);
+  if (file) {
+    return file;
+  }
+  console.log(`File not found: ${path}`);
   return null;
 }
