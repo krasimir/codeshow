@@ -41,7 +41,7 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, togg
               <img src='./imgs/arrow-left-circle.svg' alt='previous slide' />
             </button>
             <div className='current-slide mx05'>
-              {currentSlideIndex+1}/{maxSlides} of <small>"{currentSlide?.description}"</small>
+              {currentSlideIndex+1}/{maxSlides}
             </div>
             <button className="icon" onClick={() => onNextSlide()} disabled={currentSlideIndex === maxSlides-1}>
               <img src='./imgs/arrow-right-circle.svg' alt='previous slide' />

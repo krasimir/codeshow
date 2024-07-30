@@ -3,8 +3,19 @@ window.CODESHOW_SCRIPT = {
     {
       description: 'Initial',
       commands: [
-        { editFile: 'js/App.tsx'},
-        { openFile: 'css/index.css'}
+        { loadFile: 'js/App.tsx'},
+        { loadFile: 'css/index.css'},
+        { setActiveFile: 'js/App.tsx'},
+        { setContent: `import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      Hello world
+    </div>
+  )
+}`      },
+        { save: true }
       ]
     },
     {
@@ -18,7 +29,13 @@ export default function App() {
       
     </div>
   )
-}`}
+}`      },
+        { save: true },
+        { setCursorAt: [ 6, 7 ] },
+        { type: `<form>
+        test
+      </form>` },
+        { save: true }
       ]
     }
   ]

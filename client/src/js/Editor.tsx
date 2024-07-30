@@ -10,7 +10,7 @@ import { THEME } from './constants';
 import { Item } from './types';
 
 const lightTheme = EditorView.baseTheme({});
-const DEFAULT_IFRAME_REFRASH_TIME = 1000;
+const DEFAULT_IFRAME_REFRASH_TIME = 600;
 
 const CodeMirrorEditor = {
   // private
@@ -99,10 +99,10 @@ const CodeMirrorEditor = {
     this._changeContent('');
   },
   setContent(code: string) {
-    this._changeContent(code);
+    return this._changeContent(code);
   },
   save() {
-    this.onSave(this._editor.state.doc.toString());
+    return this.onSave(this._editor.state.doc.toString());
   },
   async onSave(code: string) {
     if (this._currentFile === null) return;
@@ -123,6 +123,38 @@ const CodeMirrorEditor = {
     } catch(err) {
       console.log(err);
     }
+  },
+  setCursorAt(line: number, position: number) {
+    this._editor.dispatch({
+      selection: {
+        anchor: this._editor.state.doc.line(line).from + position
+      }
+    });
+  },
+  type(text: string) {
+    this._editor.dispatch({
+      changes: { from: this._editor.state.selection.main.head, insert: text }
+    });
+  },
+  simulateTyping(text: string, delay: number = 40) {
+    return new Promise((resolve) => {
+    let i = 0;
+      const interval = setInterval(() => {
+        if (i === text.length) {
+          clearInterval(interval);
+          resolve(true);
+          return;
+        }
+        this.type(text[i]);
+        const currentPosition = this._editor.state.selection.ranges[0].from;
+        this._editor.dispatch({
+          selection: {
+            anchor: currentPosition + 1
+          }
+        });
+        i++;
+      }, delay);
+    });
   }
 }
 

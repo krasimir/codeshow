@@ -11,24 +11,29 @@ export default function useCodeshow() {
   async function executeSlide() {
     const slide:Slide = script.slides[currentSlideIndex];
     for(const command of slide.commands) {
-      if (command['editFile']) {
-        const file = findFileItem(files, command['editFile']);
+      if (command['setActiveFile']) { // -------------------------------------------------- setActiveFile
+        const file = findFileItem(files, command['setActiveFile']);
         if (file) {
-          openFile(file);
-          Editor.instance.openFile(file);
+          await Editor.instance.openFile(file);
         } else {
-          console.error(`File not found: ${command['openFile']}`);
+          console.error(`File not found: ${command['setActiveFile']}`);
         }
-      } else if (command['openFile']) {
-        const file = findFileItem(files, command['openFile']);
+      } else if (command['loadFile']) { // -------------------------------------------------- loadFile
+        const file = findFileItem(files, command['loadFile']);
         if (file) {
-          openFile(file);
+          await openFile(file);
         } else {
-          console.error(`File not found: ${command['openFile']}`);
+          console.error(`File not found: ${command['loadFile']}`);
         }
-      } else if (command['setContent']) {
+      } else if (command['setContent']) { // -------------------------------------------------- setContent
         Editor.instance.setContent(command['setContent']);
-        Editor.instance.save();
+      } else if (command['save']) { // -------------------------------------------------- setContent
+        await Editor.instance.save();
+      } else if (command['setCursorAt']) { // -------------------------------------------------- setCursorAt
+        Editor.instance.focus();
+        Editor.instance.setCursorAt(command['setCursorAt'][0], command['setCursorAt'][1]-1);
+      } else if (command['type']) { // -------------------------------------------------- setCursorAt
+        await Editor.instance.simulateTyping(command['type']);
       }
     }
   }
