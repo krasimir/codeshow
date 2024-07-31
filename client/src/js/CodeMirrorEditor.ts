@@ -19,11 +19,11 @@ const CodeMirrorEditor = {
   _editor: null,
   _theme: null,
   _currentFile: null as Item | null,
-  _onSaveCallbacks: [],
+  _listeners: {},
   _extensions() {
     return [
       createKeyMapping('Mod-s', () => {
-        this.onSave(this._editor.state.doc.toString());
+        this.save();
       }),
       createKeyMapping('Mod-=', () => {
         this.onZoomIn();
@@ -45,6 +45,10 @@ const CodeMirrorEditor = {
     this._editor.setState(
       EditorState.create({ doc: newCode, extensions: this._extensions() })
     );
+  },
+  _dispatch(event, data) {
+    if (!this._listeners[event]) return;
+    this._listeners[event].forEach(listener => listener(data));
   },
 
   // public
@@ -72,10 +76,13 @@ const CodeMirrorEditor = {
       effects: this._themeComp.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
     });
   },
-  addOnSaveCallback(callback) {
-    this._onSaveCallbacks.push(callback);
+  addEventListener(event, callback) {
+    if (!this._listeners[event]) {
+      this._listeners[event] = [];
+    }
+    this._listeners[event].push(callback);
     return () => {
-      this._onSaveCallbacks = this._onSaveCallbacks.filter(cb => cb !== callback);
+      this._listeners[event] = this._listeners[event].filter(cb => cb !== callback);      
     }
   },
   async openFile(file: Item) {
@@ -100,10 +107,8 @@ const CodeMirrorEditor = {
   setContent(code: string) {
     return this._changeContent(code);
   },
-  save() {
-    return this.onSave(this._editor.state.doc.toString());
-  },
-  async onSave(code: string) {
+  async save() {
+    const code = this._editor.state.doc.toString();
     if (this._currentFile === null) return;
     try {
       await fetch('/api/file', {
@@ -117,7 +122,7 @@ const CodeMirrorEditor = {
         })
       });
       setTimeout(() => {
-        this._onSaveCallbacks.forEach(cb => cb());
+        this._dispatch('save', this._currentFile);
       }, DEFAULT_IFRAME_REFRASH_TIME);
     } catch(err) {
       console.log(err);

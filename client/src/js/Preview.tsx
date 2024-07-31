@@ -13,7 +13,7 @@ export default function Preview({ zoomLevel }: PreviewProps) {
     overflow: 'hidden',
   }
   useEffect(() => {
-    const removeCallback = CodeMirrorEditor.addOnSaveCallback(() => {
+    const removeCallback = CodeMirrorEditor.addEventListener('save', () => {
       const el = document.querySelector('#preview-iframe');
       if (el) {
         el.src = el.src + '';
