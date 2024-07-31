@@ -30,6 +30,12 @@ export default function useCodeshow() {
         case 'type':
           await CodeMirrorEditor.simulateTyping(command.args, commandsArgs[0] ? Number(commandsArgs[0]) : undefined);
           break;
+        case 'pressBackspace':
+          await CodeMirrorEditor.pressBackspace(Number(command.args), commandsArgs[0] ? Number(commandsArgs[0]) : undefined);
+          break;
+        case 'pressEnter':
+          await CodeMirrorEditor.pressEnter(Number(command.args), commandsArgs[0] ? Number(commandsArgs[0]) : undefined);
+          break;
         default: 
           console.error(`Unknown command: ${command.name}`);
           break;

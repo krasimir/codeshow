@@ -110,18 +110,51 @@ export default function App() {
 }
 --- setCursorAt
 7, 26
---- type:70
-<br />
+--- pressBackspace:40
+6
 --- setCursorAt
-11, 33
---- type:70
-<br />
+9, 19
+--- pressBackspace:40
+6
 --- setCursorAt
-9, 13
---- type:70
-<br />
+11, 39
+--- pressBackspace:40
+6
 --- setCursorAt
-14, 13
---- type:70
-<br /><br />
+14, 25
+--- pressBackspace:40
+12
+--- save
+--- file
+client/src_app/css/index.css
+--- setContent
+* {
+  box-sizing: border-box;
+}
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 1em;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+}
+p, ul, li {
+  margin: 0;
+  padding: 0;
+}
+input {
+  font-size: 1em;
+  padding: 0.2em 0.4em;
+  border: solid 1px #000;
+  border-radius: 6px;
+}
+--- setCursorAt
+21, 22
+--- pressEnter
+1
+--- type:100
+display: block;
+margin: 0.2em 0;
 --- save

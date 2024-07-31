@@ -168,6 +168,38 @@ const CodeMirrorEditor = {
     if (this.typingInterval) {
       clearInterval(this.typingInterval);
     }
+  },
+  async pressBackspace(times = 1, delay = TYPING_DELAY) {
+    return new Promise(async (resolve) => {
+      this.typingInterval = setInterval(() => {
+        if (times === 0) {
+          clearInterval(this.typingInterval);
+          resolve(true);
+          return;
+        }
+        this._editor.dispatch({
+          changes: { from: this._editor.state.selection.main.head - 1, to: this._editor.state.selection.main.head }
+        });
+        times--;
+      }
+      , delay);
+    })
+  },
+  async pressEnter(times = 1, delay = TYPING_DELAY) {
+    return new Promise(async (resolve) => {
+      this.typingInterval = setInterval(() => {
+        if (times === 0) {
+          clearInterval(this.typingInterval);
+          resolve(true);
+          return;
+        }
+        this._editor.dispatch({
+          changes: { from: this._editor.state.selection.main.head, insert: '\n' }
+        });
+        times--;
+      }
+      , delay);
+    })
   }
 }
 
@@ -176,6 +208,9 @@ function createKeyMapping(key, callback) {
     key,
     run() { callback(); return true }
   }])
+}
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export default CodeMirrorEditor;

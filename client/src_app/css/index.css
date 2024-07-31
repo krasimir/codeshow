@@ -14,9 +14,12 @@ p, ul, li {
   margin: 0;
   padding: 0;
 }
-input[type="text"] {
+input {
   font-size: 1em;
   padding: 0.2em 0.4em;
   border: solid 1px #000;
-  border-radius: 6px;
+  border-radius: 6px;display: block;
+margin: 0.2em 0;
+
+a
 }

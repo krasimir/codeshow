@@ -4,14 +4,14 @@ export default function App() {
   return (
     <div>
       <div>
-        First name:<br />
+        First name:
         <input type="text" />        
-      </div><br />
+      </div>
       <div>
-        Are you a web developer?<br />
+        Are you a web developer?
         <input type="radio" /> Yes
         <input type="radio" /> No
-      </div><br /><br />
+      </div>
       <div>Register</div>
     </div>
   )
