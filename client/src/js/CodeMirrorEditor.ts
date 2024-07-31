@@ -10,7 +10,7 @@ import { Item } from './types';
 
 const lightTheme = EditorView.baseTheme({});
 const DEFAULT_IFRAME_REFRASH_TIME = 600;
-const TYPING_DELAY = 30;
+const TYPING_DELAY = 60;
 
 const CodeMirrorEditor = {
   // private
@@ -32,7 +32,10 @@ const CodeMirrorEditor = {
         this.onZoomOut();
       }),
       createKeyMapping('F9', () => {
-        
+        this._dispatch('nextSlide');
+      }),
+      createKeyMapping('F7', () => {
+        this._dispatch('previousSlide');
       }),
       keymap.of([indentWithTab]),
       basicSetup,
@@ -95,6 +98,7 @@ const CodeMirrorEditor = {
       }
       const code = await res.json();
       this._changeContent(code.content);
+      this._dispatch('open', file);
     } catch(err) {
       console.log(err);
       this._changeContent(err.message);

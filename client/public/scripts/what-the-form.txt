@@ -1,8 +1,6 @@
 --- file
-client/src_app/js/App.tsx
---- file
 client/src_app/css/index.css
---- loadFile
+--- file
 client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
@@ -16,6 +14,10 @@ export default function App() {
 }
 --- save
 =======================================================
+--- file
+client/src_app/css/index.css
+--- file
+client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
 
@@ -29,7 +31,7 @@ export default function App() {
 --- save
 --- setCursorAt
 6, 7
---- type
+--- type:10
 <div>
         First name:
         <input type="text" />        
@@ -42,6 +44,10 @@ export default function App() {
       <div>Register</div>
 --- save
 =======================================================
+--- file
+client/src_app/css/index.css
+--- file
+client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
 
@@ -63,18 +69,59 @@ export default function App() {
 }
 --- setCursorAt
 7, 20
---- type
+--- type:70
 <br />
 --- setCursorAt
 11, 33
---- type
+--- type:70
 <br />
 --- setCursorAt
 9, 13
---- type
+--- type:70
 <br />
 --- setCursorAt
 14, 13
---- type
+--- type:70
+<br /><br />
+--- save
+=======================================================
+--- file
+client/src_app/css/index.css
+--- file
+client/src_app/js/App.tsx
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        First name:<br />
+        <input type="text" />        
+      </div><br />
+      <div>
+        Are you a web developer?<br />
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div><br /><br />
+      <div>Register</div>
+    </div>
+  )
+}
+--- setCursorAt
+7, 26
+--- type:70
+<br />
+--- setCursorAt
+11, 33
+--- type:70
+<br />
+--- setCursorAt
+9, 13
+--- type:70
+<br />
+--- setCursorAt
+14, 13
+--- type:70
 <br /><br />
 --- save

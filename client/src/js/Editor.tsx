@@ -9,19 +9,6 @@ type EditorProps = {
   zoomLevel: number;
 }
 
-const Tabs = {
-  _listeners: [],
-  addListener(listener) {
-    this._listeners.push(listener);
-    return () => {
-      this._listeners = this._listeners.filter(l => l !== listener);
-    }
-  },
-  open(file: Item) {
-    this._listeners.forEach(listener => listener(file));
-  }
-}
-
 function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
   switch (action.type) {
     case 'open':
@@ -53,12 +40,12 @@ export default function Editor({ theme, zoomLevel }: EditorProps) {
       setZoomLevel(zoomLevel);
     }, 0);
 
-    const removeTabsListener = Tabs.addListener((file) => {
-      setOpenedFiles({ type: 'open', file });      
+    const removeFileOpenListener = CodeMirrorEditor.addEventListener('open', (file) => {
+      setOpenedFiles({ type: 'open', file });
     });
 
     return () => {
-      removeTabsListener();
+      removeFileOpenListener();
     }
   }, []);
 
@@ -95,8 +82,6 @@ export default function Editor({ theme, zoomLevel }: EditorProps) {
     </div>
   )
 }
-
-Editor.Tabs = Tabs;
 
 function setZoomLevel(zoomLevel: number) {
   const el = document.querySelector('.cm-editor');

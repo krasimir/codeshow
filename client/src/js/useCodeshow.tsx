@@ -1,23 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useReducer } from 'react';
 import { Command, Item } from './types';
 import CodeMirrorEditor from './CodeMirrorEditor';
-import Editor from './Editor';
 
 export default function useCodeshow() {
   const [ script, setScript ] = useState(null);
-  const [ currentSlideIndex, setCurrentSlideIndex ] = useState(0);
+  const [ currentSlideIndex, changeCurrentSlide ] = useReducer(currentSlideReducer, getURLAnchor());
 
   async function executeSlide() {
     const commands:Command[] = script.slides[currentSlideIndex];
     CodeMirrorEditor.stopCurrentSlide();
     for(const command of commands) {
-      let file;
-      console.log(':: Executing command:', command);
-      switch(command.name) {
+      const [ commandName, ...commandsArgs ] = command.name.split(':');
+      console.log(':: Executing command:', `"${commandName}"`);
+      switch(commandName) {
         case 'file':
-          Editor.Tabs.open(createFileFromPath(command.args));
-          break;
-        case 'loadFile':
           await CodeMirrorEditor.openFile(createFileFromPath(command.args));
           break;
         case 'setContent':
@@ -32,7 +28,7 @@ export default function useCodeshow() {
           CodeMirrorEditor.setCursorAt(line, position-1);
           break;
         case 'type':
-          await CodeMirrorEditor.simulateTyping(command.args);
+          await CodeMirrorEditor.simulateTyping(command.args, commandsArgs[0] ? Number(commandsArgs[0]) : undefined);
           break;
         default: 
           console.error(`Unknown command: ${command.name}`);
@@ -41,10 +37,10 @@ export default function useCodeshow() {
     }
   }
   function nextSlide() {
-    setCurrentSlideIndex(currentSlideIndex + 1);
+    changeCurrentSlide('next');
   }
   function previousSlide() {
-    setCurrentSlideIndex(currentSlideIndex - 1);
+    changeCurrentSlide('previous');
   }
   async function _loadResources() {
     // loading script
@@ -56,7 +52,7 @@ export default function useCodeshow() {
         const res = await fetch(script);
         const input = await res.text();
         let rawSlides = input.split('=======================================================').map(slide => slide.trim());
-        const commandRegex = /--- (\w+)([\s\S]*?)(?=(--- \w+|$))/g;
+        const commandRegex = /--- ([\w\d:]+)([\s\S]*?)(?=(--- [\w\d:]+|$))/g;
         const slides = rawSlides.map(slide => {
           const commands: Command[] = [];
           let match;
@@ -77,11 +73,20 @@ export default function useCodeshow() {
   useEffect(() => {
     if (script) {
       executeSlide();
+      updateURLAnchor(`#${currentSlideIndex}`);
     }
   }, [ script, currentSlideIndex ]);
 
   useEffect(() => {
     _loadResources();
+
+    const removeNextSlideListener = CodeMirrorEditor.addEventListener('nextSlide', nextSlide);
+    const removePreviousSlideListener = CodeMirrorEditor.addEventListener('previousSlide', previousSlide);
+
+    return () => {
+      removeNextSlideListener();
+      removePreviousSlideListener();
+    }
   }, []);
 
   return {
@@ -93,34 +98,22 @@ export default function useCodeshow() {
   }
 }
 
+function currentSlideReducer(state, action) {
+  switch(action) {
+    case 'next':
+      return state + 1;
+    case 'previous':
+      return state - 1;
+    default:
+      return state;
+  }
+}
 function getParameterByName(name, url = window.location.href) {
   const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
   const results = regex.exec(url);
   if (!results) return null;
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
-function findFileItem(files: Item[], path: string): Item | null {
-  function process(files: Item[], path: string): Item | null {
-    for (const file of files) {
-      if (file.path.match(new RegExp(path))) {
-        return file;
-      }
-      if (file.children) {
-        const found = process(file.children, path);
-        if (found) {
-          return found;
-        }
-      }
-    }
-    return null;
-  }
-  const file = process(files, path);
-  if (file) {
-    return file;
-  }
-  console.log(`File not found: ${path}`);
-  return null;
 }
 function createFileFromPath(path: string): Item {
   return {
@@ -129,4 +122,10 @@ function createFileFromPath(path: string): Item {
     name: path.split('/').pop() as string,
     children: []
   };
+}
+function updateURLAnchor(anchor: string) {
+  window.location.hash = anchor;
+}
+function getURLAnchor() {
+  return Number((window.location.hash || '').replace('#', '') || 0);
 }
