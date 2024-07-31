@@ -1,9 +1,9 @@
+--- file
+client/src_app/js/App.tsx
+--- file
+client/src_app/css/index.css
 --- loadFile
-js/App.tsx
---- loadFile
-css/index.css
---- setActiveFile
-js/App.tsx
+client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
 

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { THEME } from './constants';
 
-export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, toggleFileExporer, onPreviousSlide, onNextSlide, currentSlideIndex, maxSlides, currentSlide }) {
+export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, onPreviousSlide, onNextSlide, currentSlideIndex, maxSlides, currentSlide }) {
 
   function applyNewTheme(newTheme) {
     if (newTheme === THEME.DARK) {
@@ -30,9 +30,6 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, togg
         </button>
         <button className="icon" onClick={() => onZoomIn()}>
           <img src='./imgs/plus-circle.svg' alt='zoom in' />
-        </button>
-        <button className="icon" onClick={() => toggleFileExporer()}>
-          <img src='./imgs/file-text.svg' alt='toggle file explorer' />
         </button>
         {maxSlides !== 0 && (
           <>

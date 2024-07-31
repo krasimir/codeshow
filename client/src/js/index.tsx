@@ -6,8 +6,7 @@ import Footer from './Footer';
 import Preview from './Preview';
 import { THEME } from './constants';
 import useCodeshow from './useCodeshow';
-import FileExplorer from './FileExplorer';
-import { Item } from './types';
+import CodeMirrorEditor from './CodeMirrorEditor';
 
 const DEFAULT_THEME = localStorage.getItem('codeshow_theme') || THEME.DARK;
 const DEFAULT_ZOOM_LEVEL = Number(localStorage.getItem('codeshow_zoom') || 1);
@@ -15,17 +14,12 @@ const DEFAULT_ZOOM_LEVEL = Number(localStorage.getItem('codeshow_zoom') || 1);
 function App() {
   const [ theme, setTheme ] = useState(DEFAULT_THEME);
   const [ zoomLevel, setZoomLevel ] = useState(DEFAULT_ZOOM_LEVEL);
-  const [ fileExplorerVisible, setFileExplorerVisible ] = useState(false);
   const {
     getCurrentSlide,
     currentSlideIndex,
     maxSlides,
     nextSlide,
-    previousSlide,
-    files,
-    openFileInATab,
-    closeFile,
-    openedFiles
+    previousSlide
   } = useCodeshow();
 
   function onZoomIn() {
@@ -37,11 +31,8 @@ function App() {
     localStorage.setItem('codeshow_zoom', (zoomLevel - 0.1).toString());
   }
 
-  Editor.instance.onZoomIn = onZoomIn;
-  Editor.instance.onZoomOut = onZoomOut;
-  Editor.instance.toggleFileExporer = () => {
-    setFileExplorerVisible(!fileExplorerVisible);
-  }
+  CodeMirrorEditor.onZoomIn = onZoomIn;
+  CodeMirrorEditor.onZoomOut = onZoomOut;
 
   return (
     <>
@@ -49,20 +40,7 @@ function App() {
         <Editor
           theme={theme}
           zoomLevel={zoomLevel}
-          openFile={openFileInATab}
-          closeFile={closeFile}
-          openedFiles={openedFiles}
-        >
-          {fileExplorerVisible && <FileExplorer
-              files={files}
-              onOpenFile={(item: Item) => {
-                openFileInATab(item);
-                Editor.instance.openFile(item);
-              }}
-              onClose={() => {
-                Editor.instance.toggleFileExporer();
-              }}/>}
-        </Editor>
+        />
         <Preview zoomLevel={zoomLevel} />
       </div>
       <Footer
@@ -73,7 +51,6 @@ function App() {
         }}
         onZoomIn={onZoomIn}
         onZoomOut={onZoomOut}
-        toggleFileExporer={Editor.instance.toggleFileExporer}
         currentSlideIndex={currentSlideIndex}
         maxSlides={maxSlides}
         onNextSlide={nextSlide}

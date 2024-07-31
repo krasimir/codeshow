@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import Editor from './Editor';
+import CodeMirrorEditor from './CodeMirrorEditor';
 
 type PreviewProps = {
   zoomLevel: number
@@ -13,7 +13,7 @@ export default function Preview({ zoomLevel }: PreviewProps) {
     overflow: 'hidden',
   }
   useEffect(() => {
-    const removeCallback = Editor.instance.addOnSaveCallback(() => {
+    const removeCallback = CodeMirrorEditor.addOnSaveCallback(() => {
       const el = document.querySelector('#preview-iframe');
       if (el) {
         el.src = el.src + '';

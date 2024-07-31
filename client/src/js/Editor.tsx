@@ -1,179 +1,47 @@
 import React, { useEffect, useReducer, useState } from 'react';
-import { EditorState, Compartment } from '@codemirror/state';
-import { EditorView, basicSetup } from 'codemirror';
-import { keymap } from '@codemirror/view';
-import { javascript } from '@codemirror/lang-javascript';
-import { indentWithTab } from '@codemirror/commands'
-import { dracula as darkTheme } from 'thememirror'; // https://www.npmjs.com/package/thememirror
 
 import { THEME } from './constants';
 import { Item } from './types';
-
-const lightTheme = EditorView.baseTheme({});
-const DEFAULT_IFRAME_REFRASH_TIME = 600;
-const TYPING_DELAY = 30;
-
-const CodeMirrorEditor = {
-  // private
-  _state: null,
-  _themeComp: new Compartment,
-  _editor: null,
-  _theme: null,
-  _currentFile: null as Item | null,
-  _onSaveCallbacks: [],
-  _extensions() {
-    return [
-      createKeyMapping('Mod-s', () => {
-        this.onSave(this._editor.state.doc.toString());
-      }),
-      createKeyMapping('Mod-=', () => {
-        this.onZoomIn();
-      }),
-      createKeyMapping('Mod--', () => {
-        this.onZoomOut();
-      }),
-      createKeyMapping('Mod-Shift-e', () => {
-        this.toggleFileExporer();
-      }),
-      keymap.of([indentWithTab]),
-      basicSetup,
-      javascript(),
-      this._themeComp.of(this._theme === THEME.LIGHT ? lightTheme : darkTheme),
-      EditorView.lineWrapping
-    ]
-  },
-  _changeContent(newCode: string) {
-    this._editor.setState(
-      EditorState.create({ doc: newCode, extensions: this._extensions() })
-    );
-  },
-
-  // public
-  onZoomIn: () => {},
-  onZoomOut: () => {},
-  toggleFileExporer: () => {},
-  getCurrentFile(): Item | null {
-    return this._currentFile;
-  },
-  init(domElement: any, theme:string) {
-    this._theme = theme;
-    this._state = EditorState.create({ doc: '', extensions: this._extensions() });
-    this._editor = new EditorView({
-      state: this._state,
-      parent: domElement,
-    });
-  },
-  focus() {
-    if (this._editor === null) return;
-    this._editor.focus();
-  },
-  changeTheme(theme) {
-    if (this._editor === null) return;
-    this._theme = theme;
-    this._editor.dispatch({
-      effects: this._themeComp.reconfigure(theme === THEME.LIGHT ? lightTheme : darkTheme)
-    });
-  },
-  addOnSaveCallback(callback) {
-    this._onSaveCallbacks.push(callback);
-    return () => {
-      this._onSaveCallbacks = this._onSaveCallbacks.filter(cb => cb !== callback);
-    }
-  },
-  async openFile(file: Item) {
-    try {
-      this._currentFile = file;
-      this._changeContent(`Loading ${file.name} ...`);
-      const res = await fetch(`/api/file?path=${file.path}`);
-      if (!res.ok) {
-        throw new Error(`Failed to fetch file ${file.name}`);
-      }
-      const code = await res.json();
-      this._changeContent(code.content);
-    } catch(err) {
-      console.log(err);
-      this._changeContent(err.message);
-    }
-  },
-  async fileClosed() {
-    this._currentFile = null;
-    this._changeContent('');
-  },
-  setContent(code: string) {
-    return this._changeContent(code);
-  },
-  save() {
-    return this.onSave(this._editor.state.doc.toString());
-  },
-  async onSave(code: string) {
-    if (this._currentFile === null) return;
-    try {
-      await fetch('/api/file', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          path: this._currentFile.path,
-          content: code
-        })
-      });
-      setTimeout(() => {
-        this._onSaveCallbacks.forEach(cb => cb());
-      }, DEFAULT_IFRAME_REFRASH_TIME);
-    } catch(err) {
-      console.log(err);
-    }
-  },
-  setCursorAt(line: number, position: number) {
-    this._editor.dispatch({
-      selection: {
-        anchor: this._editor.state.doc.line(line).from + position
-      }
-    });
-  },
-  type(text: string) {
-    this._editor.dispatch({
-      changes: { from: this._editor.state.selection.main.head, insert: text }
-    });
-  },
-  simulateTyping(text: string, delay: number = TYPING_DELAY) {
-    return new Promise((resolve) => {
-      let i = 0;
-      this.typingInterval = setInterval(() => {
-        if (i === text.length) {
-          clearInterval(this.typingInterval);
-          resolve(true);
-          return;
-        }
-        this.type(text[i]);
-        const currentPosition = this._editor.state.selection.ranges[0].from;
-        this._editor.dispatch({
-          selection: {
-            anchor: currentPosition + 1
-          }
-        });
-        i++;
-      }, delay);
-    });
-  },
-  stopCurrentSlide() {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
-    }
-  }
-}
+import CodeMirrorEditor from './CodeMirrorEditor';
 
 type EditorProps = {
   theme: THEME;
   zoomLevel: number;
-  children?: any;
-  openedFiles: Item[];
-  openFile: (file: Item) => void;
-  closeFile: (file: Item) => void;
 }
 
-export default function Editor({ theme, zoomLevel, children, openedFiles, openFile, closeFile }: EditorProps) {
+const Tabs = {
+  _listeners: [],
+  addListener(listener) {
+    this._listeners.push(listener);
+    return () => {
+      this._listeners = this._listeners.filter(l => l !== listener);
+    }
+  },
+  open(file: Item) {
+    this._listeners.forEach(listener => listener(file));
+  }
+}
+
+function openedFilesReducer(files: Item[], action: { type: 'open' | 'close', file: Item }) {
+  switch (action.type) {
+    case 'open':
+      if (files.find(file => file.name === action.file.name)) {
+        return [...files];
+      }
+      return files.concat(action.file);
+    case 'close':
+      return files.filter(file => file.name !== action.file.name);
+    default:
+      return files;
+  }
+}
+
+export default function Editor({ theme, zoomLevel }: EditorProps) {
+  const [ openedFiles, setOpenedFiles ] = useReducer(openedFilesReducer, []);
+
+  function closeFile(file: Item) {
+    setOpenedFiles({ type: 'close', file });
+  }
 
   useEffect(() => {
     CodeMirrorEditor.init(
@@ -184,6 +52,14 @@ export default function Editor({ theme, zoomLevel, children, openedFiles, openFi
       CodeMirrorEditor.focus();
       setZoomLevel(zoomLevel);
     }, 0);
+
+    const removeTabsListener = Tabs.addListener((file) => {
+      setOpenedFiles({ type: 'open', file });      
+    });
+
+    return () => {
+      removeTabsListener();
+    }
   }, []);
 
   useEffect(() => {
@@ -207,7 +83,6 @@ export default function Editor({ theme, zoomLevel, children, openedFiles, openFi
             active={file.path === CodeMirrorEditor.getCurrentFile()?.path}
             onClick={() => {
               CodeMirrorEditor.openFile(file);
-              openFile(file);
             }}
             onClose={() => {
               CodeMirrorEditor.fileClosed();
@@ -217,19 +92,12 @@ export default function Editor({ theme, zoomLevel, children, openedFiles, openFi
         ))}
       </div>
       <div className='p1 flex1 h100' id='editor'></div>
-      {children}
     </div>
   )
 }
 
-Editor.instance = CodeMirrorEditor;
+Editor.Tabs = Tabs;
 
-function createKeyMapping(key, callback) {
-  return keymap.of([{
-    key,
-    run() { callback(); return true }
-  }])
-}
 function setZoomLevel(zoomLevel: number) {
   const el = document.querySelector('.cm-editor');
   if (el) {
