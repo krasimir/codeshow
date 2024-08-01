@@ -37,6 +37,9 @@ const CodeMirrorEditor = {
       createKeyMapping('F7', () => {
         this._dispatch('previousSlide');
       }),
+      createKeyMapping('F8', () => {
+        this._dispatch('F8');
+      }),
       keymap.of([indentWithTab]),
       basicSetup,
       javascript(),

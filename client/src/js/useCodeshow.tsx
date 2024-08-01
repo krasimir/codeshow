@@ -43,6 +43,15 @@ export default function useCodeshow() {
         case 'pressEnter':
           await CodeMirrorEditor.pressEnter(Number(command.args), commandsArgs[0] ? Number(commandsArgs[0]) : undefined);
           break;
+        case 'waitFor':
+          await new Promise(resolve => {
+            let removeListener;
+            removeListener = CodeMirrorEditor.addEventListener(command.args, () => {
+              resolve(true);
+              removeListener();
+            })
+          });
+          break
         default: 
           console.error(`Unknown command: ${command.name}`);
           break;
