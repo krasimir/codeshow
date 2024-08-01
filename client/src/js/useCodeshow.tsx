@@ -9,12 +9,19 @@ export default function useCodeshow() {
   async function executeSlide() {
     const commands:Command[] = script.slides[currentSlideIndex];
     CodeMirrorEditor.stopCurrentSlide();
+    console.log(commands);
     for(const command of commands) {
       const [ commandName, ...commandsArgs ] = command.name.split(':');
       console.log(':: Executing command:', `"${commandName}"`);
       switch(commandName) {
         case 'file':
           await CodeMirrorEditor.openFile(createFileFromPath(command.args));
+          break;
+        case 'files':
+          const files = command.args.split('\n').map(createFileFromPath);
+          for(const file of files) {
+            await CodeMirrorEditor.openFile(file);
+          }
           break;
         case 'setContent':
           CodeMirrorEditor.setContent(command.args);
@@ -58,13 +65,13 @@ export default function useCodeshow() {
         const res = await fetch(script);
         const input = await res.text();
         let rawSlides = input.split('=======================================================').map(slide => slide.trim());
-        const commandRegex = /--- ([\w\d:]+)([\s\S]*?)(?=(--- [\w\d:]+|$))/g;
+        const commandRegex = /--- ([\w\d:]+)\n?([\s\S]*?)(?=(--- [\w\d:]+|$))/g;
         const slides = rawSlides.map(slide => {
           const commands: Command[] = [];
           let match;
           while ((match = commandRegex.exec(slide)) !== null) {
             const commandName = match[1];
-            const commandArgs = match[2].trim();
+            const commandArgs = trimAStringToTheEnd(match[2]);
             commands.push({ name: commandName, args: commandArgs } as Command);
           }
           return commands;
@@ -134,4 +141,7 @@ function updateURLAnchor(anchor: string) {
 }
 function getURLAnchor() {
   return Number((window.location.hash || '').replace('#', '') || 0);
+}
+function trimAStringToTheEnd(str: string) {
+  return str.replace(/\s+$/, '');
 }

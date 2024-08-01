@@ -1,5 +1,29 @@
 --- file
 client/src_app/css/index.css
+--- setContent
+* {
+  box-sizing: border-box;
+}
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 1em;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+}
+p, ul, li {
+  margin: 0;
+  padding: 0;
+}
+input {
+  font-size: 1em;
+  padding: 0.2em 0.4em;
+  border: solid 1px #000;
+  border-radius: 6px;
+}
+--- save
 --- file
 client/src_app/js/App.tsx
 --- setContent
@@ -14,9 +38,8 @@ export default function App() {
 }
 --- save
 =======================================================
---- file
+--- files
 client/src_app/css/index.css
---- file
 client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
@@ -44,9 +67,8 @@ export default function App() {
       <div>Register</div>
 --- save
 =======================================================
---- file
+--- files
 client/src_app/css/index.css
---- file
 client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
@@ -85,9 +107,8 @@ export default function App() {
 <br /><br />
 --- save
 =======================================================
---- file
+--- files
 client/src_app/css/index.css
---- file
 client/src_app/js/App.tsx
 --- setContent
 import React from 'react';
@@ -96,34 +117,18 @@ export default function App() {
   return (
     <div>
       <div>
-        First name:<br />
+        First name:
         <input type="text" />        
-      </div><br />
+      </div>
       <div>
-        Are you a web developer?<br />
+        Are you a web developer?
         <input type="radio" /> Yes
         <input type="radio" /> No
-      </div><br /><br />
+      </div>
       <div>Register</div>
     </div>
   )
 }
---- setCursorAt
-7, 26
---- pressBackspace:40
-6
---- setCursorAt
-9, 19
---- pressBackspace:40
-6
---- setCursorAt
-11, 39
---- pressBackspace:40
-6
---- setCursorAt
-14, 25
---- pressBackspace:40
-12
 --- save
 --- file
 client/src_app/css/index.css
@@ -155,6 +160,6 @@ input {
 --- pressEnter
 1
 --- type:100
-display: block;
-margin: 0.2em 0;
+  display: block;
+  margin: 0.2em 0;
 --- save

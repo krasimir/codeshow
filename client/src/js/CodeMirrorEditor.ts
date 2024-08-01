@@ -1,4 +1,4 @@
-import { EditorState, Compartment } from '@codemirror/state';
+import { EditorState, Compartment, EditorSelection } from '@codemirror/state';
 import { EditorView, basicSetup } from 'codemirror';
 import { keymap } from '@codemirror/view';
 import { javascript } from '@codemirror/lang-javascript';
@@ -9,7 +9,7 @@ import { THEME } from './constants';
 import { Item } from './types';
 
 const lightTheme = EditorView.baseTheme({});
-const DEFAULT_IFRAME_REFRASH_TIME = 600;
+const DEFAULT_IFRAME_REFRASH_TIME = 700;
 const TYPING_DELAY = 60;
 
 const CodeMirrorEditor = {
@@ -193,9 +193,16 @@ const CodeMirrorEditor = {
           resolve(true);
           return;
         }
-        this._editor.dispatch({
-          changes: { from: this._editor.state.selection.main.head, insert: '\n' }
-        });
+        const state = this._editor.state;
+        let cursor = state.selection.main.to;
+
+        let newlineTransaction = {
+          changes: { from: cursor, to: cursor, insert: "\n" },
+          userEvent: "input",
+          scrollIntoView: true,
+          selection: EditorSelection.cursor(cursor + 1),
+        };
+        this._editor.dispatch(newlineTransaction);
         times--;
       }
       , delay);

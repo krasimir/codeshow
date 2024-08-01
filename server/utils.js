@@ -39,6 +39,7 @@ function app() {
         <body>
           <div id="root" class="h100 p1"></div>
           <script src="/app_${version}.js"></script>
+          <script src="https://cdn.tailwindcss.com"></script>
         </body>
       </html>
     `);
