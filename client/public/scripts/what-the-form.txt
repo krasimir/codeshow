@@ -40,7 +40,7 @@ export default function App() {
       <div>Register</div>
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 7, 20
 --- type:70
@@ -123,21 +123,21 @@ export default function App() {
 </div>
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 10, 11
 --- type:40
  className="mt-6 mb-6"
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 15, 11
 --- type:80
  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center"
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 15, 103
 --- type:80
@@ -167,7 +167,7 @@ export default function App() {
 }
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 1, 13
 --- type:50
@@ -190,7 +190,7 @@ checked={answer === 'yes'} onClick={() => setAnswer('yes')}
 checked={answer === 'no'} onClick={() => setAnswer('no')}
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 14, 91
 --- pressEnter
@@ -225,7 +225,7 @@ F8
  className="mr-3"
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 5, 1
 --- type:50
@@ -267,7 +267,7 @@ export default function App() {
 }
 --- save
 --- waitFor
-F8
+F12
 --- setCursorAt
 9, 9
 --- pressBackspace
@@ -281,7 +281,7 @@ form
 --- type:60
 form
 --- waitFor
-F8
+F12
 --- setCursorAt
 10, 11
 --- pressBackspace:10
@@ -307,7 +307,7 @@ fieldset
 --- type:60
 fieldset
 --- waitFor
-F8
+F12
 --- setCursorAt
 4, 48
 --- pressBackspace:10
@@ -329,12 +329,22 @@ F8
 --- pressBackspace:10
 32
 --- waitFor
-F8
+F12
 --- setCursorAt
-16, 28
---- pressBackspace:10
-28
+16, 32
+--- pressBackspace:20
+32
 --- setCursorAt
-16, 39
---- pressBackspace:10
+15, 42
+--- pressBackspace:20
 7
+--- setCursorAt
+17, 15
+--- pressBackspace:20
+15
+--- setCursorAt
+16, 41
+--- pressBackspace:20
+7
+--- waitFor
+F12
