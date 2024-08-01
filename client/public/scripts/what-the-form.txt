@@ -130,36 +130,235 @@ export default function App() {
   )
 }
 --- save
---- file
+=======================================================
+--- files
 client/src_app/css/index.css
+client/src_app/js/App.tsx
 --- setContent
-* {
-  box-sizing: border-box;
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        First name:
+        <input type="text" />        
+      </div>
+      <div>
+        Are you a web developer?
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div>Register</div>
+    </div>
+  )
 }
-body, html {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 1em;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 24px;
-  line-height: 32px;
-}
-p, ul, li {
-  margin: 0;
-  padding: 0;
-}
-input {
-  font-size: 1em;
-  padding: 0.2em 0.4em;
-  border: solid 1px #000;
-  border-radius: 6px;
-}
+--- save
 --- setCursorAt
-21, 22
+7, 9
+--- type:60
+<div>
+--- setCursorAt
+7, 25
+--- type:60
+</div>
+--- setCursorAt
+11, 9
+--- type:60
+<div>
+--- setCursorAt
+11, 38
+--- type:60
+</div>
+--- save
+=======================================================
+--- files
+client/src_app/css/index.css
+client/src_app/js/App.tsx
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        <div>First name:</div>
+        <input type="text" />        
+      </div>
+      <div>
+        <div>Are you a web developer?</div>
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div>Register</div>
+    </div>
+  )
+}
+--- save
+--- setCursorAt
+10, 11
+--- type:60
+ class="mt-6 mb-6"
+--- save
+=======================================================
+--- files
+client/src_app/css/index.css
+client/src_app/js/App.tsx
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        <div>First name:</div>
+        <input type="text" />        
+      </div>
+      <div class="mt-6 mb-6">
+        <div>Are you a web developer?</div>
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div>Register</div>
+    </div>
+  )
+}
+--- save
+--- setCursorAt
+15, 11
+--- type:40
+ class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center"
+--- save
+=======================================================
+--- files
+client/src_app/css/index.css
+client/src_app/js/App.tsx
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        <div>First name:</div>
+        <input type="text" />        
+      </div>
+      <div class="mt-6 mb-6">
+        <div>Are you a web developer?</div>
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">Register</div>
+    </div>
+  )
+}
+--- save
+--- setCursorAt
+15, 100
+--- type:40
+ style={{ cursor: "pointer" }}
+--- save
+=======================================================
+--- files
+client/src_app/css/index.css
+client/src_app/js/App.tsx
+--- setContent
+import React from 'react';
+
+export default function App() {
+  return (
+    <div>
+      <div>
+        <div>First name:</div>
+        <input type="text" />        
+      </div>
+      <div class="mt-6 mb-6">
+        <div>Are you a web developer?</div>
+        <input type="radio" /> Yes
+        <input type="radio" /> No
+      </div>
+      <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center" style={{ cursor: "pointer" }}>Register</div>
+    </div>
+  )
+}
+--- save
+--- setCursorAt
+1, 13
+--- type:50
+, { useState }
+--- setCursorAt
+3, 32
 --- pressEnter
 1
---- type:100
-  display: block;
-  margin: 0.2em 0;
+--- type:50
+  const [ answer, setAnswer ] = useState(null);
+--- pressEnter
+1
+--- setCursorAt
+14, 29
+--- type:50
+checked={answer === 'yes'} onClick={() => setAnswer('yes')}
+--- setCursorAt
+15, 29
+--- type:50
+checked={answer === 'no'} onClick={() => setAnswer('no')}
+--- save
+=======================================================
+--- files
+client/src_app/css/index.css
+client/src_app/js/App.tsx
+--- setContent
+import React, { useState } from 'react';
+
+export default function App() {
+  const [ answer, setAnswer ] = useState(null);
+
+  return (
+    <div>
+      <div>
+        <div>First name:</div>
+        <input type="text" />        
+      </div>
+      <div class="mt-6 mb-6">
+        <div>Are you a web developer?</div>
+        <input type="radio" checked={answer === 'yes'} onClick={() => setAnswer('yes')}/> Yes
+        <input type="radio" checked={answer === 'no'} onClick={() => setAnswer('no')}/> No
+      </div>
+      <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center" style={{ cursor: "pointer" }}>Register</div>
+    </div>
+  )
+}
+--- save
+--- setCursorAt
+14, 91
+--- pressEnter
+1
+--- type:40
+        <span>
+--- setCursorAt
+15, 18
+--- type:40
+</span>
+--- setCursorAt
+15, 14
+--- type:40
+ onClick={() => setAnswer('yes')}
+--- setCursorAt
+16, 89
+--- pressEnter
+1
+--- type:40
+        <span>
+--- setCursorAt
+17, 17
+--- type:40
+</span>
+--- setCursorAt
+17, 14
+--- type:40
+ onClick={() => setAnswer('no')}
+--- setCursorAt
+15, 47
+--- type:40
+ class="mr-3"
 --- save
