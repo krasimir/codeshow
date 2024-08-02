@@ -58,6 +58,8 @@ button.as-link {
   background: none;
   border: none;
   cursor: pointer;
+  display: flex;
+	align-items: center;
 }
 button.icon:hover {
   transform: scale(1.1);

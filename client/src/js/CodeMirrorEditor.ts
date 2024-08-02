@@ -210,6 +210,12 @@ const CodeMirrorEditor = {
       }
       , delay);
     })
+  },
+  simulateF12() {
+    this._editor.focus();
+    setTimeout(() => {
+      this._dispatch('F12');
+    }, 10);
   }
 }
 

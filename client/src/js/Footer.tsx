@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { THEME } from './constants';
+import CodeMirrorEditor from './CodeMirrorEditor';
 
 export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, onPreviousSlide, onNextSlide, currentSlideIndex, maxSlides, currentSlide, waitingFor }) {
 
@@ -35,16 +36,20 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, onPr
           <>
             <div className='separatlor mx05'></div>
             <button className="icon" onClick={() => onPreviousSlide()} disabled={currentSlideIndex === 0}>
-              <img src='./imgs/arrow-left-circle.svg' alt='previous slide' />
+              F7&nbsp;&nbsp;<img src='./imgs/arrow-left-circle.svg' alt='previous slide' />
             </button>
             <div className='current-slide mx05'>
               {currentSlideIndex+1}/{maxSlides}
             </div>
             <button className="icon" onClick={() => onNextSlide()} disabled={currentSlideIndex === maxSlides-1}>
-              <img src='./imgs/arrow-right-circle.svg' alt='previous slide' />
+              <img src='./imgs/arrow-right-circle.svg' alt='previous slide' /> &nbsp;&nbsp;F9
             </button>
             <div className='separatlor mx05'></div>
-            <div>{waitingFor ? <small>(F12)</small> : <small>(F9)</small>}</div>
+            <div>{waitingFor && 
+              <button className="icon" onClick={() => CodeMirrorEditor.simulateF12()}>
+                <img src='./imgs/chevrons-down.svg' alt='previous slide' /> &nbsp;&nbsp;F12
+              </button>
+            }</div>
           </>
         )}
       </div>
