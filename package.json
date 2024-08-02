@@ -2,13 +2,13 @@
   "name": "krago-league",
   "private": true,
   "description": "...",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "scripts": {
     "clean": "rm -f ./client/public/*.js && rm -f ./client/public/*.js.map && rm -f ./client/public/*.css && rm -f ./client/public/*.css.map",
     "dev": "yarn clean && node ./sdk/dev.js",
     "build": "yarn clean && node ./sdk/build.js",
     "version-bump": "node ./sdk/bumpVersion.js",
-    "release": "yarn clean && yarn version-bump && node ./sdk/build.js && gcloud builds submit --config cloudbuild.yaml"
+    "deploy": "yarn clean && yarn version-bump && node ./sdk/build.js && gcloud builds submit --config cloudbuild.yaml"
   },
   "author": "Krasimir Tsonev",
   "dependencies": {

@@ -58,4 +58,4 @@ Error generating stack: `+s.message+`
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-//# sourceMappingURL=codeshow_0.0.2.js.map
+//# sourceMappingURL=codeshow_0.0.4.js.map
