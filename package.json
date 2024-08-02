@@ -2,7 +2,7 @@
   "name": "krago-league",
   "private": true,
   "description": "...",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "scripts": {
     "clean": "rm -f ./client/public/*.js && rm -f ./client/public/*.js.map && rm -f ./client/public/*.css && rm -f ./client/public/*.css.map",
     "dev": "yarn clean && node ./sdk/dev.js",

@@ -15,5 +15,6 @@ RUN apk add --update --no-cache \
 RUN yarn install
 
 COPY client ./client
+COPY config ./config
 COPY server ./server
 CMD [ "node", "./server/index.js" ]
