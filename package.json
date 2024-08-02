@@ -1,6 +1,5 @@
 {
-  "name": "krago-league",
-  "private": true,
+  "name": "@krasimir/codeshow",
   "description": "...",
   "version": "0.0.5",
   "scripts": {
