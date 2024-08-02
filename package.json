@@ -6,8 +6,7 @@
     "clean": "rm -f ./client/public/*.js && rm -f ./client/public/*.js.map && rm -f ./client/public/*.css && rm -f ./client/public/*.css.map",
     "dev": "yarn clean && node ./sdk/dev.js",
     "build": "yarn clean && node ./sdk/build.js",
-    "version-bump": "node ./sdk/bumpVersion.js",
-    "deploy": "yarn clean && yarn version-bump && node ./sdk/build.js && gcloud builds submit --config cloudbuild.yaml"
+    "version-bump": "node ./sdk/bumpVersion.js"
   },
   "author": "Krasimir Tsonev",
   "dependencies": {
