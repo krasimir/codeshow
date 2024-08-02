@@ -19,7 +19,8 @@ function App() {
     currentSlideIndex,
     maxSlides,
     nextSlide,
-    previousSlide
+    previousSlide,
+    waitingFor
   } = useCodeshow();
 
   function onZoomIn() {
@@ -56,6 +57,7 @@ function App() {
         onNextSlide={nextSlide}
         onPreviousSlide={previousSlide}
         currentSlide={getCurrentSlide()}
+        waitingFor={waitingFor}
       />
     </>
   )

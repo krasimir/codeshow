@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { THEME } from './constants';
 
-export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, onPreviousSlide, onNextSlide, currentSlideIndex, maxSlides, currentSlide }) {
+export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, onPreviousSlide, onNextSlide, currentSlideIndex, maxSlides, currentSlide, waitingFor }) {
 
   function applyNewTheme(newTheme) {
     if (newTheme === THEME.DARK) {
@@ -43,6 +43,8 @@ export default function Footer({ theme, onThemeChange, onZoomIn, onZoomOut, onPr
             <button className="icon" onClick={() => onNextSlide()} disabled={currentSlideIndex === maxSlides-1}>
               <img src='./imgs/arrow-right-circle.svg' alt='previous slide' />
             </button>
+            <div className='separatlor mx05'></div>
+            <div>{waitingFor ? <small>(F12)</small> : <small>(F9)</small>}</div>
           </>
         )}
       </div>

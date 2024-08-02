@@ -5,11 +5,11 @@ import CodeMirrorEditor from './CodeMirrorEditor';
 export default function useCodeshow() {
   const [ script, setScript ] = useState(null);
   const [ currentSlideIndex, changeCurrentSlide ] = useReducer(currentSlideReducer, getURLAnchor());
+  const [ waitingFor, setWaitingFor ] = useState(false);
 
   async function executeSlide() {
     const commands:Command[] = script.slides[currentSlideIndex];
     CodeMirrorEditor.stopCurrentSlide();
-    console.log(commands);
     for(const command of commands) {
       const [ commandName, ...commandsArgs ] = command.name.split(':');
       console.log(':: Executing command:', `"${commandName}"`);
@@ -45,8 +45,10 @@ export default function useCodeshow() {
           break;
         case 'waitFor':
           await new Promise(resolve => {
+            setWaitingFor(true);
             let removeListener;
             removeListener = CodeMirrorEditor.addEventListener(command.args, () => {
+              setWaitingFor(false);
               resolve(true);
               removeListener();
             })
@@ -116,7 +118,8 @@ export default function useCodeshow() {
     maxSlides: script ? script.slides.length : 0,
     nextSlide,
     previousSlide,
-    getCurrentSlide: () => script ? script.slides[currentSlideIndex] : null
+    getCurrentSlide: () => script ? script.slides[currentSlideIndex] : null,
+    waitingFor
   }
 }
 

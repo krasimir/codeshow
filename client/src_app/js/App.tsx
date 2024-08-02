@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 export default function App() {
   function onSubmit(e) {
     e.preventDefault();
+    alert('test')
   }
   return (
     <form onSubmit={onSubmit}>

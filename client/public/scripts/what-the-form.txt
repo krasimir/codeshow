@@ -59,30 +59,6 @@ F12
 <br /><br />
 --- save
 =======================================================
---- files
-client/src_app/css/index.css
-client/src_app/js/App.tsx
---- setContent
-import React from 'react';
-
-export default function App() {
-  return (
-    <div>
-      <div>
-        First name:
-        <input type="text" />        
-      </div>
-      <div>
-        Are you a web developer?
-        <input type="radio" /> Yes
-        <input type="radio" /> No
-      </div>
-      <div>Register</div>
-    </div>
-  )
-}
---- save
-=======================================================
 --- file
 client/src_app/js/App.tsx
 --- setContent
@@ -328,8 +304,6 @@ F12
 18, 46
 --- pressBackspace:10
 32
---- waitFor
-F12
 --- setCursorAt
 16, 32
 --- pressBackspace:20
@@ -347,8 +321,6 @@ F12
 --- pressBackspace:20
 7
 --- save
---- waitFor
-F12
 =======================================================
 --- file
 client/src_app/js/App.tsx
